@@ -264,63 +264,37 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
 
         progress_bar.update(1)
 
-parser = argparse.ArgumentParser(description='Sequential Decision Making..')
+parser = argparse.ArgumentParser()
 
+parser.add_argument('--dataset', type=str, default='SHD', help='Dataset')
+parser.add_argument('--datapath', type=str, default= '../data/', help='path to the dataset')
+parser.add_argument('--batch_size', type=int, default=256, metavar='N', help='Batch size')
+parser.add_argument('--parts', type=int, default=100, help='Parts to split the sequential input into')
+
+parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
+parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
+parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
+parser.add_argument('--lr', type=float, default=5e-3, help='Learning rate')
+parser.add_argument('--when', nargs='+', type=int, default=[25, 50, 75], help='Epochs where Learning rate decays')
+parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
+parser.add_argument('--wnorm', action='store_false', help='Weight normalization (default: True)')
+parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
+parser.add_argument('--clip', type=float, default=1., help='Gradient Clipping')
 parser.add_argument('--alpha', type=float, default=.1, help='Alpha')
 parser.add_argument('--beta', type=float, default=0.5, help='Beta')
 parser.add_argument('--rho', type=float, default=0.0, help='Rho')
-parser.add_argument('--lmbda', type=float, default=2.0, help='Lambda')
+parser.add_argument('--lmda', type=float, default=1.0, help='Lambda')
+                    
+parser.add_argument('--seed', type=int, default=1111, help='Random seed')
+parser.add_argument('--load', type=str, default='', help='Path to load the model')
+parser.add_argument('--save', type=str, default='./models/', help='Path to save the model')
+parser.add_argument('--per_ex_stats', action='store_true', help='Use per example stats to compute the KL loss (default: False)')
 
-parser.add_argument('--nlayers', type=int, default= 2,
-                    help='number of layers')
-parser.add_argument('--nhid', type=int, default=256,
-                    help='number of hidden units per layer')
-parser.add_argument('--lr', type=float, default=5e-3,
-                    help='initial learning rate (default: 4e-3)')
-parser.add_argument('--clip', type=float, default=1., #0.5,
-                    help='gradient clipping')
-
-parser.add_argument('--epochs', type=int, default=100,
-                    help='Number of Epochs')
-parser.add_argument('--parts', type=int, default=100,
-                    help='Parts to split the sequential input into (default: 100)')
-parser.add_argument('--batch_size', type=int, default=256, metavar='N',
-                    help='Batch size')
-
-parser.add_argument('--wnorm', action='store_false',
-                    help='use weight normalization (default: True)')
-parser.add_argument('--wdecay', type=float, default=0.,
-                    help='weight decay')
-parser.add_argument('--seed', type=int, default=1111,
-                    help='random seed')
-parser.add_argument('--optim', type=str, default='Adam',
-                    help='optimizer to use')
-parser.add_argument('--when', nargs='+', type=int, default=[25, 50, 75],
-                    help='When to decay the learning rate')
-parser.add_argument('--load', type=str, default='',
-                    help='path to load the model')
-parser.add_argument('--save', type=str, default='./models/',
-                    help='path to load the model')
-
-parser.add_argument('--per_ex_stats', action='store_true',
-                    help='Use per example stats to compute the KL loss (default: False)')
-parser.add_argument('--dataset', type=str, default='SHD',
-                    help='dataset to use')
-parser.add_argument('--datapath', type=str, 
-                    default= '../data/',
-                    help='path to the dataset')
+print('PARSING ARGUMENTS...')           
 args = parser.parse_args()
 
-
-args.cuda = True
-
-exp_name = args.dataset + '-parts-' + str(args.parts) + '-optim-' + args.optim
-exp_name += '-B-' + str(args.batch_size) + '-E-' + str(args.epochs)
-exp_name += '-alpha-' + str(args.alpha) + '-beta-' + str(args.beta)
-
-if args.per_ex_stats:
-    exp_name += '-per-ex-stats-'
-
+exp_name = 'optim-' + args.optim + '-B-' + str(args.batch_size) + '-alpha-' + str(args.alpha) + '-beta-' + str(args.beta)
+if args.per_ex_stats: exp_name += '-per-ex-stats-'    
 print('args.per_ex_stats: ', args.per_ex_stats)
 prefix = args.save + exp_name
 
