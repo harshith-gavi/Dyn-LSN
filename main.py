@@ -386,7 +386,8 @@ for epoch in range(1, epochs + 1):
             first_update = update_prob_estimates( model, args, train_loader, estimatedDistribution, estimate_class_distribution, first_update )
 
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
-        train(epoch, args, train_loader, n_classes, model, named_params, progress_bar, k = 1)  
+        k = 1
+        train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
         progress_bar.close()
         #train_oracle(epoch)
 
