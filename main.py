@@ -395,7 +395,7 @@ for epoch in range(1, epochs + 1):
 
         test_loss, acc = test(model, train_loader)
         print('Loss:', test_loss, end = '\t')
-        print('Accuracy:', acc[0])
+        print('Accuracy:', acc.item())
       
         if epoch in args.when :
             # Scheduled learning rate decay
