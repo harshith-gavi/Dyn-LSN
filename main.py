@@ -292,6 +292,7 @@ parser.add_argument('--per_ex_stats', action='store_true', help='Use per example
 
 print('PARSING ARGUMENTS...')           
 args = parser.parse_args()
+args.cuda = True
 
 exp_name = 'optim-' + args.optim + '-B-' + str(args.batch_size) + '-alpha-' + str(args.alpha) + '-beta-' + str(args.beta)
 if args.per_ex_stats: exp_name += '-per-ex-stats-'    
