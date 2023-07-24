@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 import tonic
 import torch
 from torch import nn
-# from torch.nn import init
-# from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 import torch.optim as optim
 
@@ -276,7 +274,7 @@ parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
 parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
 parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
 parser.add_argument('--lr', type=float, default=5e-3, help='Learning rate')
-parser.add_argument('--when', nargs='+', type=int, default=[25, 50, 75], help='Epochs where Learning rate decays')
+parser.add_argument('--when', nargs='+', type=int, default=[50, 75], help='Epochs where Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
 parser.add_argument('--wnorm', action='store_false', help='Weight normalization (default: True)')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
@@ -302,7 +300,6 @@ prefix = args.save + exp_name
 
 
 torch.backends.cudnn.benchmark = True
-device_0 = torch.device('cpu')
 device_1 = torch.device('cuda:0')
 device_2 = torch.device('cuda:1')
 
@@ -339,7 +336,9 @@ if len(args.load) > 0:
     model.load_state_dict(model_ckp['state_dict'])
     print('best acc of loaded model: ',model_ckp['best_acc'])
 
-model.cuda()
+
+# model.cuda()
+model = nn.DataParallel(model)
 print('Model: ', model)
 
 
