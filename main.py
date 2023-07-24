@@ -336,7 +336,8 @@ if len(args.load) > 0:
     model.load_state_dict(model_ckp['state_dict'])
     print('best acc of loaded model: ',model_ckp['best_acc'])
 
-model.cuda()
+# model.cuda()
+model = torch.nn.parallel.DistributedDataParallel(model)
 print('Model: ', model)
 
 
@@ -346,7 +347,7 @@ if optimizer is None:
         optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, momentum=0.9, weight_decay=args.wdecay)
         
 
-all_test_losses = []
+all_train_losses = []
 epochs = args.epochs
 
 best_acc = 0.0
@@ -366,9 +367,9 @@ for epoch in range(1, epochs + 1):
 
         reset_named_params(named_params, args)
 
-        test_loss, acc = test(model, train_loader)
-        print('Loss:', test_loss, end = '\t')
-        print('Accuracy:', acc.item())
+        train_loss, train_acc = test(model, train_loader)
+        print('Loss:', train_loss, end = '\t')
+        print('Accuracy:', train_acc.item())
       
         if epoch in args.when :
             # Scheduled learning rate decay
@@ -378,8 +379,8 @@ for epoch in range(1, epochs + 1):
         
             
         # remember best acc@1 and save checkpoint
-        is_best = acc > best_acc
-        best_acc = max(acc, best_acc)
+        is_best = train_acc > best_acc
+        best_acc = max(train_acc, best_acc)
             
         save_checkpoint({
                 'epoch': epoch + 1,
@@ -390,4 +391,9 @@ for epoch in range(1, epochs + 1):
                 # 'oracle_optimizer' : oracle_optim.state_dict(),
             }, is_best, prefix=prefix)
  
-        all_test_losses.append(test_loss)
+        all_train_losses.append(train_loss)
+
+print('TESTING...')
+test_loss, test_acc = test(model, test_loader)
+print('Loss:', test_loss, end = '\t')
+print('Accuracy:', test_acc.item())
