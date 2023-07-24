@@ -161,12 +161,12 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     
     T = seq_length
     #entropy = EntropyLoss()
-    
+    model = model.module
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
         # data = data.view(-1, input_channels, seq_length)
-  
+
         B = target.size()[0]
         step = model.network.step
         xdata = data.clone()
@@ -205,9 +205,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
             else:
                 oracle_prob = F.one_hot(target).float() 
 
-            model_attr = model.module
-            o, h, hs = model_attr.network.forward(x, h ,p)
-            
             # o, h, hs = model.network.forward(x, h ,p)
             # print(os[-1].shape,h[-1].shape,hs[-1][-1].shape)
             # print(h[-1],os[-1])
