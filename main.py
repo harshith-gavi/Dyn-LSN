@@ -58,7 +58,7 @@ def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
 
         counter += 1
 
-    return mod_data.cuda()
+    return mod_data
 
 def data_generator(dataset, batch_size, datapath, shuffle=True):
     if dataset == 'SHD':
@@ -161,7 +161,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     #entropy = EntropyLoss()
    
     for batch_idx, (data, target) in enumerate(train_loader):
-        if args.cuda: data, target = data.cuda(), target.cuda()
+        if args.cuda: data, target = data.to(device_1), target.to(device_1)
         data = data.to_dense()
         # data = data.view(-1, input_channels, seq_length)
   
