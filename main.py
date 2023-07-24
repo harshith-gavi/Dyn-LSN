@@ -339,8 +339,8 @@ if len(args.load) > 0:
 
 
 # model.cuda()
-model = nn.DataParallel(model, device_ids=[0, 1])
-#model = torch.nn.parallel.DistributedDataParallel(model, )
+# model = nn.DataParallel(model, device_ids=[0, 1])
+model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[0, 1])
 print('Model: ', model)
 
 
@@ -356,7 +356,6 @@ epochs = args.epochs
 best_acc = 0.0
 first_update = False
 named_params = get_stats_named_params(model)
-mp.spawn(train, nprocs=2)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
