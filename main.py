@@ -300,7 +300,7 @@ if args.per_ex_stats: exp_name += '-per-ex-stats-'
 print('args.per_ex_stats: ', args.per_ex_stats)
 prefix = args.save + exp_name
 
-
+mp.spawn(main, nprocs=2)
 torch.backends.cudnn.benchmark = True
 device_1 = torch.device('cuda:0')
 device_2 = torch.device('cuda:1')
