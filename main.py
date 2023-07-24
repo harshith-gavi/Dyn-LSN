@@ -339,8 +339,7 @@ if len(args.load) > 0:
 
 
 model.cuda()
-# model = nn.DataParallel(model, device_ids=[0, 1])
-model = torch.nn.parallel.DistributedDataParallel(model, device_ids=None)
+model = nn.DataParallel(model, device_ids=[0, 1])
 print('Model: ', model)
 
 
