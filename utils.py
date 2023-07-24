@@ -4,53 +4,49 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
-
-
 def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
     '''
     This function generates batches of sparse data from the SHD dataset
     '''
-    with torch.cuda.device('cuda:0'):
-        labels = np.array(y, int)
-        nb_batches = len(labels)//batch_size
-        sample_index = np.arange(len(labels))
-    
-        firing_times = X['times']
-        units_fired = X['units']
-    
-        time_bins = np.linspace(0, max_time, num=step_size)
-    
-        if shuffle:
-            np.random.shuffle(sample_index)
-    
-        total_batch_count = 0
-        counter = 0
-        mod_data = []
-        while counter<nb_batches:
-            batch_index = sample_index[batch_size*counter:batch_size*(counter+1)]
-    
-            coo = [ [] for i in range(3) ]
-            for bc,idx in enumerate(batch_index):
-                times = np.digitize(firing_times[idx], time_bins)
-                units = units_fired[idx]
-                batch = [bc for _ in range(len(times))]
-    
-                coo[0].extend(batch)
-                coo[2].extend(units)
-                coo[1].extend(times)
-    
-            i = torch.LongTensor(coo)
-            v = torch.FloatTensor(np.ones(len(coo[0])))
-    
-            X_batch = torch.sparse.FloatTensor(i, v, torch.Size([batch_size,step_size,input_size]))
-            # y_batch = torch.tensor(labels[batch_index])
-            y_batch = torch.tensor(labels[batch_index])
-            
-            mod_data.append((X_batch, y_batch))
-    
-            counter += 1
+    labels = np.array(y, int)
+    nb_batches = len(labels)//batch_size
+    sample_index = np.arange(len(labels))
 
-        return mod_data
+    firing_times = X['times']
+    units_fired = X['units']
+
+    time_bins = np.linspace(0, max_time, num=step_size)
+
+    if shuffle:
+        np.random.shuffle(sample_index)
+
+    total_batch_count = 0
+    counter = 0
+    mod_data = []
+    while counter<nb_batches:
+        batch_index = sample_index[batch_size*counter:batch_size*(counter+1)]
+
+        coo = [ [] for i in range(3) ]
+        for bc,idx in enumerate(batch_index):
+            times = np.digitize(firing_times[idx], time_bins)
+            units = units_fired[idx]
+            batch = [bc for _ in range(len(times))]
+
+            coo[0].extend(batch)
+            coo[2].extend(units)
+            coo[1].extend(times)
+
+        i = torch.LongTensor(coo)
+        v = torch.FloatTensor(np.ones(len(coo[0])))
+
+        X_batch = torch.sparse.FloatTensor(i, v, torch.Size([batch_size,step_size,input_size])).to('cuda:0')
+        y_batch = torch.tensor(labels[batch_index]).to('cuda:0')
+        
+        mod_data.append((X_batch, y_batch))
+
+        counter += 1
+
+    return mod_data
 
 def get_xt(p, step, T, inputs):
     start = p*step
