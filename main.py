@@ -161,7 +161,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     #entropy = EntropyLoss()
    
     for batch_idx, (data, target) in enumerate(train_loader):
-        if args.cuda: data, target = data.to(device_1), target.to(device_1)
+        if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
         # data = data.view(-1, input_channels, seq_length)
   
@@ -336,7 +336,7 @@ if len(args.load) > 0:
     model.load_state_dict(model_ckp['state_dict'])
     print('best acc of loaded model: ',model_ckp['best_acc'])
 
-# model.cuda()
+model.cuda()
 model = torch.nn.parallel.DistributedDataParallel(model)
 print('Model: ', model)
 
