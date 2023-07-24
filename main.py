@@ -11,6 +11,8 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import torch.optim as optim
+import torch.distributed as dist
+import torch.multiprocessing as mp
 
 from utils import *
 from snn_models_LIF4_save4_l2 import *
@@ -336,6 +338,8 @@ if len(args.load) > 0:
     model.load_state_dict(model_ckp['state_dict'])
     print('best acc of loaded model: ',model_ckp['best_acc'])
 
+dist_backend = "nccl"  # Backend for GPU-based distributed training
+dist.init_process_group(backend=dist_backend)
 model.cuda()
 model = torch.nn.parallel.DistributedDataParallel(model)
 print('Model: ', model)
