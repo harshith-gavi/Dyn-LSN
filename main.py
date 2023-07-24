@@ -58,7 +58,7 @@ def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
 
         counter += 1
 
-    return mod_data.to(device_2)
+    return mod_data.cuda()
 
 def data_generator(dataset, batch_size, datapath, shuffle=True):
     if dataset == 'SHD':
