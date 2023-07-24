@@ -1,8 +1,3 @@
-# export RANK=0
-# export WORLD_SIZE=2
-# export MASTER_ADDR=localhost
-# export MASTER_PORT=12345
-
 import math
 import h5py
 import argparse
@@ -343,7 +338,7 @@ if len(args.load) > 0:
     print('best acc of loaded model: ',model_ckp['best_acc'])
 
 
-model.cuda()
+# model.cuda()
 model = nn.DataParallel(model, device_ids=[0, 1])
 #model = torch.nn.parallel.DistributedDataParallel(model, )
 print('Model: ', model)
