@@ -162,7 +162,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     T = seq_length
     #entropy = EntropyLoss()
     model = model.module
-    model.cuda()
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
