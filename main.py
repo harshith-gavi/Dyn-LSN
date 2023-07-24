@@ -1,7 +1,7 @@
-export RANK=0
-export WORLD_SIZE=2
-export MASTER_ADDR=localhost
-export MASTER_PORT=12345
+# export RANK=0
+# export WORLD_SIZE=2
+# export MASTER_ADDR=localhost
+# export MASTER_PORT=12345
 
 import math
 import h5py
