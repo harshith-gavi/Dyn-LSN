@@ -300,7 +300,6 @@ if args.per_ex_stats: exp_name += '-per-ex-stats-'
 print('args.per_ex_stats: ', args.per_ex_stats)
 prefix = args.save + exp_name
 
-mp.spawn(main, nprocs=2)
 torch.backends.cudnn.benchmark = True
 device_1 = torch.device('cuda:0')
 device_2 = torch.device('cuda:1')
@@ -358,6 +357,7 @@ epochs = args.epochs
 best_acc = 0.0
 first_update = False
 named_params = get_stats_named_params(model)
+mp.spawn(train, nprocs=2)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
