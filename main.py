@@ -161,7 +161,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     
     T = seq_length
     #entropy = EntropyLoss()
-    model = model.module
+
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
@@ -336,7 +336,7 @@ if len(args.load) > 0:
     model.load_state_dict(model_ckp['state_dict'])
     print('best acc of loaded model: ',model_ckp['best_acc'])
 
-model = nn.DataParallel(model, device_ids=[0, 1])
+model.cuda()
 print('Model: ', model)
 
 
