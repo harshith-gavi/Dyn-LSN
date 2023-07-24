@@ -1,3 +1,8 @@
+export RANK=0
+export WORLD_SIZE=2
+export MASTER_ADDR=localhost
+export MASTER_PORT=12345
+
 import math
 import h5py
 import argparse
@@ -337,11 +342,10 @@ if len(args.load) > 0:
     model.load_state_dict(model_ckp['state_dict'])
     print('best acc of loaded model: ',model_ckp['best_acc'])
 
-dist_backend = "nccl"  # Backend for GPU-based distributed training
-dist.init_process_group(backend=dist_backend)
-torch.cuda.set_device(torch.distributed.get_rank())
+
 model.cuda()
-model = torch.nn.parallel.DistributedDataParallel(model)
+model = nn.DataParallel(model, device_ids=[0, 1])
+#model = torch.nn.parallel.DistributedDataParallel(model, )
 print('Model: ', model)
 
 
