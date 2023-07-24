@@ -9,58 +9,56 @@ import matplotlib.pyplot as plt
 import tonic
 import torch
 from torch import nn
-# from torch.nn import init
-# from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 import torch.optim as optim
 
 from utils import *
 from snn_models_LIF4_save4_l2 import *
 
-def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
-    '''
-    This function generates batches of sparse data from the SHD dataset
-    '''
-    labels = np.array(y, int)
-    nb_batches = len(labels)//batch_size
-    sample_index = np.arange(len(labels))
+# def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
+#     '''
+#     This function generates batches of sparse data from the SHD dataset
+#     '''
+#     labels = np.array(y, int)
+#     nb_batches = len(labels)//batch_size
+#     sample_index = np.arange(len(labels))
 
-    firing_times = X['times']
-    units_fired = X['units']
+#     firing_times = X['times']
+#     units_fired = X['units']
 
-    time_bins = np.linspace(0, max_time, num=step_size)
+#     time_bins = np.linspace(0, max_time, num=step_size)
 
-    if shuffle:
-        np.random.shuffle(sample_index)
+#     if shuffle:
+#         np.random.shuffle(sample_index)
 
-    total_batch_count = 0
-    counter = 0
-    mod_data = []
-    while counter<nb_batches:
-        batch_index = sample_index[batch_size*counter:batch_size*(counter+1)]
+#     total_batch_count = 0
+#     counter = 0
+#     mod_data = []
+#     while counter<nb_batches:
+#         batch_index = sample_index[batch_size*counter:batch_size*(counter+1)]
 
-        coo = [ [] for i in range(3) ]
-        for bc,idx in enumerate(batch_index):
-            times = np.digitize(firing_times[idx], time_bins)
-            units = units_fired[idx]
-            batch = [bc for _ in range(len(times))]
+#         coo = [ [] for i in range(3) ]
+#         for bc,idx in enumerate(batch_index):
+#             times = np.digitize(firing_times[idx], time_bins)
+#             units = units_fired[idx]
+#             batch = [bc for _ in range(len(times))]
 
-            coo[0].extend(batch)
-            coo[2].extend(units)
-            coo[1].extend(times)
+#             coo[0].extend(batch)
+#             coo[2].extend(units)
+#             coo[1].extend(times)
 
-        i = torch.LongTensor(coo).to(device_2)
-        v = torch.FloatTensor(np.ones(len(coo[0]))).to(device_2)
+#         i = torch.LongTensor(coo).to(device_2)
+#         v = torch.FloatTensor(np.ones(len(coo[0]))).to(device_2)
 
-        X_batch = torch.sparse.FloatTensor(i, v, torch.Size([batch_size,step_size,input_size])).to(device_2)
-        # y_batch = torch.tensor(labels[batch_index], device = device_2)
-        y_batch = torch.tensor(labels[batch_index]).to(device_2)
+#         X_batch = torch.sparse.FloatTensor(i, v, torch.Size([batch_size,step_size,input_size])).to(device_2)
+#         # y_batch = torch.tensor(labels[batch_index], device = device_2)
+#         y_batch = torch.tensor(labels[batch_index]).to(device_2)
         
-        mod_data.append((X_batch, y_batch))
+#         mod_data.append((X_batch, y_batch))
 
-        counter += 1
+#         counter += 1
 
-    return mod_data
+#     return mod_data
 
 def data_generator(dataset, batch_size, datapath, shuffle=True):
     if dataset == 'SHD':
