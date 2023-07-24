@@ -49,13 +49,14 @@ def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
             coo[2].extend(units)
             coo[1].extend(times)
 
-        i = torch.LongTensor(coo).to(device_0)
-        v = torch.FloatTensor(np.ones(len(coo[0]))).to(device_0)
+        i = torch.LongTensor(coo).to(device_2)
+        v = torch.FloatTensor(np.ones(len(coo[0]))).to(device_2)
 
-        X_batch = torch.sparse.FloatTensor(i, v, torch.Size([batch_size,step_size,input_size])).to(device_0)
-        y_batch = torch.tensor(labels[batch_index], device = device_0)
-
-        mod_data.append((X_batch.to(device_0), y_batch.to(device_0)))
+        X_batch = torch.sparse.FloatTensor(i, v, torch.Size([batch_size,step_size,input_size])).to(device_2)
+        # y_batch = torch.tensor(labels[batch_index], device = device_2)
+        y_batch = torch.tensor(labels[batch_index]).to(device_2)
+        
+        mod_data.append((X_batch, y_batch))
 
         counter += 1
 
