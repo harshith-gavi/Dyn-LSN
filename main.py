@@ -336,7 +336,7 @@ if len(args.load) > 0:
     model.load_state_dict(model_ckp['state_dict'])
     print('best acc of loaded model: ',model_ckp['best_acc'])
 
-model.to(device_1)
+model.cuda()
 print('Model: ', model)
 
 
