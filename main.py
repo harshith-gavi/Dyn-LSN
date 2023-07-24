@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 import tonic
 import torch
 from torch import nn
+# from torch.nn import init
+# from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.distributed as dist
-import torch.multiprocessing as mp
 
 from utils import *
 from snn_models_LIF4_save4_l2 import *
@@ -161,12 +161,12 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     
     T = seq_length
     #entropy = EntropyLoss()
-
+   
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
         # data = data.view(-1, input_channels, seq_length)
-
+  
         B = target.size()[0]
         step = model.network.step
         xdata = data.clone()
@@ -205,7 +205,8 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
             else:
                 oracle_prob = F.one_hot(target).float() 
 
-            # o, h, hs = model.network.forward(x, h ,p)
+            
+            o, h,hs = model.network.forward(x, h ,p)
             # print(os[-1].shape,h[-1].shape,hs[-1][-1].shape)
             # print(h[-1],os[-1])
             # print(x.shape)
@@ -275,7 +276,7 @@ parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
 parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
 parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
 parser.add_argument('--lr', type=float, default=5e-3, help='Learning rate')
-parser.add_argument('--when', nargs='+', type=int, default=[50, 75], help='Epochs where Learning rate decays')
+parser.add_argument('--when', nargs='+', type=int, default=[25, 50, 75], help='Epochs where Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
 parser.add_argument('--wnorm', action='store_false', help='Weight normalization (default: True)')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
@@ -299,7 +300,9 @@ if args.per_ex_stats: exp_name += '-per-ex-stats-'
 print('args.per_ex_stats: ', args.per_ex_stats)
 prefix = args.save + exp_name
 
+
 torch.backends.cudnn.benchmark = True
+device_0 = torch.device('cpu')
 device_1 = torch.device('cuda:0')
 device_2 = torch.device('cuda:1')
 
@@ -346,7 +349,7 @@ if optimizer is None:
         optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, momentum=0.9, weight_decay=args.wdecay)
         
 
-all_train_losses = []
+all_test_losses = []
 epochs = args.epochs
 
 best_acc = 0.0
@@ -366,9 +369,9 @@ for epoch in range(1, epochs + 1):
 
         reset_named_params(named_params, args)
 
-        train_loss, train_acc = test(model, train_loader)
-        print('Loss:', train_loss, end = '\t')
-        print('Accuracy:', train_acc.item())
+        test_loss, acc = test(model, train_loader)
+        print('Loss:', test_loss, end = '\t')
+        print('Accuracy:', acc.item())
       
         if epoch in args.when :
             # Scheduled learning rate decay
@@ -378,8 +381,8 @@ for epoch in range(1, epochs + 1):
         
             
         # remember best acc@1 and save checkpoint
-        is_best = train_acc > best_acc
-        best_acc = max(train_acc, best_acc)
+        is_best = acc > best_acc
+        best_acc = max(acc, best_acc)
             
         save_checkpoint({
                 'epoch': epoch + 1,
@@ -390,9 +393,4 @@ for epoch in range(1, epochs + 1):
                 # 'oracle_optimizer' : oracle_optim.state_dict(),
             }, is_best, prefix=prefix)
  
-        all_train_losses.append(train_loss)
-
-print('TESTING...')
-test_loss, test_acc = test(model, test_loader)
-print('Loss:', test_loss, end = '\t')
-print('Accuracy:', test_acc.item())
+        all_test_losses.append(test_loss)
