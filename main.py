@@ -15,51 +15,6 @@ import torch.optim as optim
 from utils import *
 from snn_models_LIF4_save4_l2 import *
 
-# def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
-#     '''
-#     This function generates batches of sparse data from the SHD dataset
-#     '''
-#     labels = np.array(y, int)
-#     nb_batches = len(labels)//batch_size
-#     sample_index = np.arange(len(labels))
-
-#     firing_times = X['times']
-#     units_fired = X['units']
-
-#     time_bins = np.linspace(0, max_time, num=step_size)
-
-#     if shuffle:
-#         np.random.shuffle(sample_index)
-
-#     total_batch_count = 0
-#     counter = 0
-#     mod_data = []
-#     while counter<nb_batches:
-#         batch_index = sample_index[batch_size*counter:batch_size*(counter+1)]
-
-#         coo = [ [] for i in range(3) ]
-#         for bc,idx in enumerate(batch_index):
-#             times = np.digitize(firing_times[idx], time_bins)
-#             units = units_fired[idx]
-#             batch = [bc for _ in range(len(times))]
-
-#             coo[0].extend(batch)
-#             coo[2].extend(units)
-#             coo[1].extend(times)
-
-#         i = torch.LongTensor(coo).to(device_2)
-#         v = torch.FloatTensor(np.ones(len(coo[0]))).to(device_2)
-
-#         X_batch = torch.sparse.FloatTensor(i, v, torch.Size([batch_size,step_size,input_size])).to(device_2)
-#         # y_batch = torch.tensor(labels[batch_index], device = device_2)
-#         y_batch = torch.tensor(labels[batch_index]).to(device_2)
-        
-#         mod_data.append((X_batch, y_batch))
-
-#         counter += 1
-
-#     return mod_data
-
 def data_generator(dataset, batch_size, datapath, shuffle=True):
     if dataset == 'SHD':
         shd_train = h5py.File(datapath + 'train_data/SHD/shd_train.h5', 'r')
@@ -85,7 +40,6 @@ def get_stats_named_params( model ):
         sm, lm, dm = param.detach().clone(), 0.0*param.detach().clone(), 0.0*param.detach().clone()
         named_params[name] = (param, sm, lm, dm)
     return named_params
-
 
 def post_optimizer_updates( named_params, args, epoch ):
     alpha = args.alpha
@@ -171,8 +125,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
         pdata = data.clone()
         
         # T = inputs.size()[0]
- 
-        # Delta = torch.zeros(B, dtype=xdata.dtype, device=xdata.device)
         
         _PARTS = PARTS
         # if (PARTS * step < T):
@@ -229,12 +181,9 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
             if p%k==0 or p==p_range[-1]:
                 optimizer.zero_grad()
                 
-                # clf_loss = (p+1)/(_PARTS)*F.nll_loss(output, target,reduction='none')
                 # nll_loss = 0.9*F.nll_loss(output, target,reduction='none')-0.1*output.mean(dim=-1)
                 nll_loss = F.nll_loss(output, target,reduction='none')
-                # clf_loss = (p+1)/(_PARTS)*nll_loss
-                # clf_loss = (p+1)/(_PARTS)*nll_loss*data[:,0,max(p-10,0):p].sum(-1).gt(.1)
-                clf_loss = (p+1)/(_PARTS)*nll_loss#*data[:,0,:p].sum(-1).gt(1.)
+                clf_loss = (p+1)/(_PARTS)*nll_loss
                 clf_loss = clf_loss.mean()
                 # clf_loss = (p+1)/(_PARTS)*F.cross_entropy(output, target)
                 oracle_loss = (1-(p+1)/(_PARTS)) * 1.0 *torch.mean( -oracle_prob * output)
@@ -347,7 +296,7 @@ if optimizer is None:
         optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, momentum=0.9, weight_decay=args.wdecay)
         
 
-all_test_losses = []
+all_train_losses = []
 epochs = args.epochs
 
 best_acc = 0.0
@@ -363,12 +312,11 @@ for epoch in range(1, epochs + 1):
         k = 1
         train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
         progress_bar.close()
-        #train_oracle(epoch)
 
         reset_named_params(named_params, args)
 
-        test_loss, acc = test(model, train_loader)
-        print('Loss:', test_loss, end = '\t')
+        train_loss, acc = test(model, train_loader)
+        print('Loss:', train_loss, end = '\t')
         print('Accuracy:', acc.item())
       
         if epoch in args.when :
@@ -391,4 +339,9 @@ for epoch in range(1, epochs + 1):
                 # 'oracle_optimizer' : oracle_optim.state_dict(),
             }, is_best, prefix=prefix)
  
-        all_test_losses.append(test_loss)
+        all_train_losses.append(train_loss)
+
+print('TESTING...')
+test_loss, test_acc = test(model, test_loader)
+print('Loss:', test_loss, end = '\t')
+print('Accuracy:', test_acc.item())
