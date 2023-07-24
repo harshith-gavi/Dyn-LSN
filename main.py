@@ -340,6 +340,7 @@ if len(args.load) > 0:
 
 dist_backend = "nccl"  # Backend for GPU-based distributed training
 dist.init_process_group(backend=dist_backend)
+torch.cuda.set_device(torch.distributed.get_rank())
 model.cuda()
 model = torch.nn.parallel.DistributedDataParallel(model)
 print('Model: ', model)
