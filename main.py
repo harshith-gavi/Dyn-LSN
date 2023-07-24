@@ -76,7 +76,6 @@ def test(model, test_loader):
         if args.cuda:
             data, target = data.cuda(), target.cuda()
         data = data.to_dense()
-        # data = data.view(-1, input_channels, seq_length)#[:,:,:700]
 
         with torch.no_grad():
             model.eval()
@@ -132,10 +131,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
         h = model.init_hidden(xdata.size(0))
       
         p_range = range(_PARTS)
-        # for p in p_range:
-        #     # x = data[:,0,p:p+1].view(-1,1,1)
-        #     x = data[:, p, :].view(1, 1, -1)
-        #     print(x.shape)
+
         data = torch.split(data, split_size_or_sections=1, dim=1)
         for p in range(len(data)):
             x = data[p]
@@ -156,11 +152,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 oracle_prob = F.one_hot(target).float() 
 
             
-            o, h,hs = model.network.forward(x, h ,p)
-            # print(os[-1].shape,h[-1].shape,hs[-1][-1].shape)
-            # print(h[-1],os[-1])
-            # print(x.shape)
-            # print(os.shape)
+            o, h, hs = model.network.forward(x, h ,p)
 
             prob_out = F.softmax(h[-1], dim=1)
             output = F.log_softmax(h[-1], dim=1) 
@@ -188,11 +180,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 # clf_loss = (p+1)/(_PARTS)*F.cross_entropy(output, target)
                 oracle_loss = (1-(p+1)/(_PARTS)) * 1.0 *torch.mean( -oracle_prob * output)
                     
-                regularizer = get_regularizer_named_params(named_params, args, _lambda = 1.0 ) 
-                # if p>600:     
-                #     loss = clf_loss + regularizer  + oracle_loss#+ model.network.fr*0.5
-                # else:
-                #     loss = clf_loss + regularizer 
+                regularizer = get_regularizer_named_params(named_params, args, _lambda = 1.0)
                 loss = clf_loss + regularizer + oracle_loss
    
                 loss.backward()
@@ -242,12 +230,6 @@ print('PARSING ARGUMENTS...')
 args = parser.parse_args()
 args.cuda = True
 
-exp_name = 'optim-' + args.optim + '-B-' + str(args.batch_size) + '-alpha-' + str(args.alpha) + '-beta-' + str(args.beta)
-if args.per_ex_stats: exp_name += '-per-ex-stats-'    
-print('args.per_ex_stats: ', args.per_ex_stats)
-prefix = args.save + exp_name
-
-
 torch.backends.cudnn.benchmark = True
 device_0 = torch.device('cpu')
 device_1 = torch.device('cuda:0')
@@ -257,8 +239,6 @@ device_2 = torch.device('cuda:1')
 torch.set_default_tensor_type('torch.cuda.FloatTensor')
 torch.cuda.manual_seed(args.seed)
 
-
-steps = 0
 if args.dataset in ['SHD']:
     train_loader, test_loader, seq_length, input_channels, n_classes = data_generator(args.dataset, 
                                                                      batch_size=args.batch_size,
@@ -271,15 +251,12 @@ if args.dataset in ['SHD']:
 else:
     exit(1)
 
-optimizer = None
-lr = args.lr
-
 model = SeqModel(ninp = input_channels,
-                    nhid = args.nhid,
-                    nout = n_classes,
-                    wnorm = args.wnorm,
-                    n_timesteps = seq_length, 
-                    parts = args.parts)
+                 nhid = args.nhid,
+                 nout = n_classes,
+                 wnorm = args.wnorm,
+                 n_timesteps = seq_length, 
+                 parts = args.parts)
 
 if len(args.load) > 0:
     model_ckp = torch.load(args.load)
@@ -289,19 +266,23 @@ if len(args.load) > 0:
 model.cuda()
 print('Model: ', model)
 
+steps = 0
+best_acc = 0.0
+optimizer = None
+lr = args.lr
+all_train_losses = []
+epochs = args.epochs
+first_update = False
+named_params = get_stats_named_params(model)
+exp_name = 'optim-' + args.optim + '-B-' + str(args.batch_size) + '-alpha-' + str(args.alpha) + '-beta-' + str(args.beta)
+if args.per_ex_stats: exp_name += '-per-ex-stats-'    
+print('args.per_ex_stats: ', args.per_ex_stats)
+prefix = args.save + exp_name
 
 if optimizer is None:
     optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, weight_decay=args.wdecay)
     if args.optim == 'SGD':
         optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, momentum=0.9, weight_decay=args.wdecay)
-        
-
-all_train_losses = []
-epochs = args.epochs
-
-best_acc = 0.0
-first_update = False
-named_params = get_stats_named_params(model)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
@@ -325,23 +306,18 @@ for epoch in range(1, epochs + 1):
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
         
-            
-        # remember best acc@1 and save checkpoint
         is_best = acc > best_acc
         best_acc = max(acc, best_acc)
             
         save_checkpoint({
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
-                # 'oracle_state_dict': oracle.state_dict(),
                 'best_acc': best_acc,
                 'optimizer' : optimizer.state_dict(),
-                # 'oracle_optimizer' : oracle_optim.state_dict(),
             }, is_best, prefix=prefix)
  
         all_train_losses.append(train_loss)
 
 print('TESTING...')
 test_loss, test_acc = test(model, test_loader)
-print('Loss:', test_loss, end = '\t')
 print('Accuracy:', test_acc.item())
