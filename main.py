@@ -23,8 +23,8 @@ def data_generator(dataset, batch_size, datapath, shuffle=True):
         shd_train = data_mod(shd_train['spikes'], shd_train['labels'], batch_size = batch_size, step_size = 100, input_size = 700, max_time = 1.37)
         shd_test = data_mod(shd_test['spikes'], shd_test['labels'], batch_size = 1, step_size = 100, input_size = 700, max_time = 1.37)
         
-        train_loader = shd_train[:int(0.9 * len(shd_train)]
-        val_loader = shd_train[int(0.9 * len(shd_train):]
+        train_loader = shd_train[:int(0.9 * len(shd_train))]
+        val_loader = shd_train[int(0.9 * len(shd_train)):]
         test_loader = shd_test
         n_classes = 20
         seq_length = 100
