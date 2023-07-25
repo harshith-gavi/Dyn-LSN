@@ -298,7 +298,7 @@ for epoch in range(1, epochs + 1):
         reset_named_params(named_params, args)
 
         train_loss, train_acc = test(model, train_loader)
-        print('Loss:', train_loss, end = '\t')
+        print('\nLoss:', train_loss, end = '\t')
         print('Accuracy:', train_acc.item(), end = '\t')
         val_loss, val_acc = test(model, val_loader)
         print('Validation Loss:', val_loss, end = '\t')
