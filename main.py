@@ -302,7 +302,7 @@ for epoch in range(1, epochs + 1):
       
         if epoch in args.when :
             # Scheduled learning rate decay
-            lr *= 0.9
+            lr *= 0.5
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
         
