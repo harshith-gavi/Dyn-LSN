@@ -23,7 +23,8 @@ def data_generator(dataset, batch_size, datapath, shuffle=True):
         shd_train = data_mod(shd_train['spikes'], shd_train['labels'], batch_size = batch_size, step_size = 100, input_size = 700, max_time = 1.37)
         shd_test = data_mod(shd_test['spikes'], shd_test['labels'], batch_size = 1, step_size = 100, input_size = 700, max_time = 1.37)
         
-        train_loader = shd_train
+        train_loader = shd_train[:int(0.9 * len(shd_train)]
+        val_loader = shd_train[int(0.9 * len(shd_train):]
         test_loader = shd_test
         n_classes = 20
         seq_length = 100
@@ -32,7 +33,7 @@ def data_generator(dataset, batch_size, datapath, shuffle=True):
     else:
         print('Dataset not included! Use a different dataset.')
         exit(1)
-    return train_loader, test_loader, seq_length, input_channels, n_classes
+    return train_loader, val_loader, test_loader, seq_length, input_channels, n_classes
 
 def get_stats_named_params( model ):
     named_params = {}
@@ -240,7 +241,7 @@ torch.set_default_tensor_type('torch.cuda.FloatTensor')
 torch.cuda.manual_seed(args.seed)
 
 if args.dataset in ['SHD']:
-    train_loader, test_loader, seq_length, input_channels, n_classes = data_generator(args.dataset, 
+    train_loader, val_loader, test_loader, seq_length, input_channels, n_classes = data_generator(args.dataset, 
                                                                      batch_size=args.batch_size,
                                                                      datapath=args.datapath, 
                                                                      shuffle=(not args.per_ex_stats))
@@ -296,18 +297,20 @@ for epoch in range(1, epochs + 1):
 
         reset_named_params(named_params, args)
 
-        train_loss, acc = test(model, train_loader)
+        train_loss, train_acc = test(model, train_loader)
         print('Loss:', train_loss, end = '\t')
-        print('Accuracy:', acc.item())
+        print('Accuracy:', train_acc.item(), end = '\t')
+        val_loss, val_acc = test(model, val_loader)
+        print('Validation Loss:', val_loss, end = '\t')
+        print('Validation Accuracy:', val_acc.item())
       
         if epoch in args.when :
-            # Scheduled learning rate decay
             lr *= 0.5
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
         
-        is_best = acc > best_acc
-        best_acc = max(acc, best_acc)
+        is_best = train_acc > best_acc
+        best_acc = max(train_acc, best_acc)
             
         save_checkpoint({
                 'epoch': epoch + 1,
