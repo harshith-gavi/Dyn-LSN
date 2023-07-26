@@ -6,7 +6,9 @@ import torch.nn.functional as F
 
 def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
     '''
-    This function generates batches of sparse data from the SHD dataset
+    Modifies the SHD dataset into sparse data and batches them.
+    ARGS: X (tensor), y (tensor), batch_size (int), step_size (int), input_size (int), max_time (float), shuffle (bool)
+    RETURNS: mod_data (list(tuple(tensors)))
     '''
     labels = np.array(y, int)
     nb_batches = len(labels)//batch_size
