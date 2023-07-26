@@ -190,7 +190,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
                     
                 optimizer.step()
-                post_optimizer_updates_g( named_params, args,epoch )
+                post_optimizer_updates( named_params, args,epoch )
             
                 train_loss += loss.item()
                 total_clf_loss += clf_loss.item()
@@ -227,7 +227,6 @@ parser.add_argument('--load', type=str, default='', help='Path to load the model
 parser.add_argument('--save', type=str, default='./models/', help='Path to save the model')
 parser.add_argument('--per_ex_stats', action='store_true', help='Use per example stats to compute the KL loss (default: False)')
 
-post_optimizer_updates_g = post_optimizer_updates.to(device_1)
 print('PARSING ARGUMENTS...')           
 args = parser.parse_args()
 args.cuda = True
