@@ -1,6 +1,3 @@
-"""
-Liquid time constant snn
-"""
 import os
 import shutil
 import torch
@@ -126,20 +123,20 @@ class ActFun_adp(torch.autograd.Function):
         ctx.save_for_backward(input)
         return input.gt(0).float()  # is firing ???
 
-    @staticmethod
-    def backward(ctx, grad_output):  # approximate the gradients
-        input, = ctx.saved_tensors
-        grad_input = grad_output.clone()
-        # temp = abs(input) < lens
-        scale = 6.0
-        hight = .15
-        # temp = torch.exp(-(input**2)/(2*lens**2))/torch.sqrt(2*torch.tensor(math.pi))/lens
-        temp = gaussian(input, mu=0., sigma=lens) * (1. + hight) \
-               - gaussian(input, mu=lens, sigma=scale * lens) * hight \
-               - gaussian(input, mu=-lens, sigma=scale * lens) * hight
-        # temp =  gaussian(input, mu=0., sigma=lens)
-        return grad_input * temp.float() * gamma
-        # return grad_input
+    # @staticmethod
+    # def backward(ctx, grad_output):  # approximate the gradients
+    #     input, = ctx.saved_tensors
+    #     grad_input = grad_output.clone()
+    #     # temp = abs(input) < lens
+    #     scale = 6.0
+    #     hight = .15
+    #     # temp = torch.exp(-(input**2)/(2*lens**2))/torch.sqrt(2*torch.tensor(math.pi))/lens
+    #     temp = gaussian(input, mu=0., sigma=lens) * (1. + hight) \
+    #            - gaussian(input, mu=lens, sigma=scale * lens) * hight \
+    #            - gaussian(input, mu=-lens, sigma=scale * lens) * hight
+    #     # temp =  gaussian(input, mu=0., sigma=lens)
+    #     return grad_input * temp.float() * gamma
+    #     # return grad_input
 
 
 act_fun_adp = ActFun_adp.apply
