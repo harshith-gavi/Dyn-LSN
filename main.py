@@ -38,8 +38,8 @@ def data_generator(dataset, batch_size, datapath, shuffle=True):
 def get_stats_named_params( model ):
     named_params = {}
     for name, param in model.named_parameters():
-        sm, lm, dm = param.detach().clone().to(device_2), 0.0*param.detach().clone().to(device_2), 0.0*param.detach().clone().to(device_2)
-        named_params[name] = (param.to(device_2), sm, lm, dm)
+        sm, lm, dm = param.detach().clone().to(device_1), 0.0*param.detach().clone().to(device_1), 0.0*param.detach().clone().to(device_1)
+        named_params[name] = (param.to(device_1), sm, lm, dm)
     return named_params
 
 def post_optimizer_updates( named_params, args, epoch ):
