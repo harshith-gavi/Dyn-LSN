@@ -55,7 +55,7 @@ def post_optimizer_updates( named_params, args, epoch ):
 def get_regularizer_named_params( named_params, args, _lambda=1.0 ):
     alpha = args.alpha
     rho = args.rho
-    regularization = torch.zeros([])
+    regularization = torch.zeros([]).to(device_1)
     for name in named_params:
         param, sm, lm, dm = named_params[name]
         regularization += (rho-1.) * torch.sum( param * lm )
