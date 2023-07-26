@@ -38,8 +38,8 @@ def data_generator(dataset, batch_size, datapath, shuffle=True):
 def get_stats_named_params( model ):
     named_params = {}
     for name, param in model.named_parameters():
-        sm, lm, dm = param.detach().clone(), 0.0*param.detach().clone(), 0.0*param.detach().clone()
-        named_params[name] = (param, sm, lm, dm)
+        sm, lm, dm = param.detach().clone().to(device_2), 0.0*param.detach().clone().to(device_2), 0.0*param.detach().clone().to(device_2)
+        named_params[name] = (param.to(device_2), sm, lm, dm)
     return named_params
 
 def post_optimizer_updates( named_params, args, epoch ):
@@ -284,7 +284,6 @@ if optimizer is None:
     optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, weight_decay=args.wdecay)
     if args.optim == 'SGD':
         optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, momentum=0.9, weight_decay=args.wdecay)
-optimizer.to(device_2)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
