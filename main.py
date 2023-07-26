@@ -284,7 +284,7 @@ if optimizer is None:
     optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, weight_decay=args.wdecay)
     if args.optim == 'SGD':
         optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, momentum=0.9, weight_decay=args.wdecay)
-optimiser.to(device_2)
+optimizer.to(device_2)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
