@@ -1,17 +1,10 @@
 import os
-import shutil
 import torch
 from torch import nn
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch.nn import init
 import math
-
-def save_checkpoint(state, is_best, prefix, filename='_snn_sota_2layer_checkpoint.pth.tar'):
-    print('saving at ', prefix+filename)
-    torch.save(state, prefix+filename)
-    if is_best:
-        shutil.copyfile(prefix+filename, prefix+ '_snn_model_sota_2layer_best.pth.tar')
 
 class SeparatedBatchNorm1d(nn.Module):
     """
