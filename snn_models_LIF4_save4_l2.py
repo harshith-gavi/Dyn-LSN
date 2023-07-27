@@ -14,36 +14,27 @@ def save_checkpoint(state, is_best, prefix, filename='_snn_sota_2layer_checkpoin
         shutil.copyfile(prefix+filename, prefix+ '_snn_model_sota_2layer_best.pth.tar')
 
 class SeparatedBatchNorm1d(nn.Module):
-
     """
     A batch normalization module which keeps its running mean
     and variance separately per timestep.
     """
-
-    def __init__(self, num_features, max_length, eps=1e-5, momentum=0.1,
-                 affine=True):
-        """
-        Most parts are copied from
-        torch.nn.modules.batchnorm._BatchNorm.
-        """
-
+    def __init__(self, num_features, max_length, eps=1e-5, momentum=0.1, affine=True):
         super(SeparatedBatchNorm1d, self).__init__()
         self.num_features = num_features
         self.max_length = max_length
         self.affine = affine
         self.eps = eps
         self.momentum = momentum
-        if self.affine:
-            self.weight = nn.Parameter(torch.FloatTensor(num_features))
-            self.bias = nn.Parameter(torch.FloatTensor(num_features))
-        else:
-            self.register_parameter('weight', None)
-            self.register_parameter('bias', None)
+        
+        self.weight = nn.Parameter(torch.FloatTensor(num_features))
+        self.bias = nn.Parameter(torch.FloatTensor(num_features))
+        
         for i in range(max_length):
             self.register_buffer(
                 'running_mean_{}'.format(i), torch.zeros(num_features))
             self.register_buffer(
                 'running_var_{}'.format(i), torch.ones(num_features))
+            
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -57,7 +48,6 @@ class SeparatedBatchNorm1d(nn.Module):
             self.bias.data.zero_()
 
     def _check_input_dim(self, input_):
-        # print(input_.shape)
         if input_.size(1) != self.running_mean_0.nelement():
             raise ValueError('got {}-feature tensor, expected {}'
                              .format(input_.size(1), self.num_features))
@@ -68,22 +58,18 @@ class SeparatedBatchNorm1d(nn.Module):
             time = self.max_length - 1
         running_mean = getattr(self, 'running_mean_{}'.format(time))
         running_var = getattr(self, 'running_var_{}'.format(time))
-        return F.batch_norm(
-            input=input_, running_mean=running_mean, running_var=running_var,
-            weight=self.weight, bias=self.bias, training=self.training,
-            momentum=self.momentum, eps=self.eps)
+        return F.batch_norm(input=input_, running_mean=running_mean, running_var=running_var,
+                            weight=self.weight, bias=self.bias, training=self.training,
+                            momentum=self.momentum, eps=self.eps)
 
     def __repr__(self):
         return ('{name}({num_features}, eps={eps}, momentum={momentum},'
                 ' max_length={max_length}, affine={affine})'
                 .format(name=self.__class__.__name__, **self.__dict__))
-###############################################################################################
-###############################    Define SNN layer   #########################################
-###############################################################################################
+
+
 
 b_j0 = 0.1  # neural threshold baseline
-R_m = 3  # membrane resistance
-dt = 1  
 gamma = .5  # gradient scale
 lens = 0.3
 
@@ -93,9 +79,9 @@ def gaussian(x, mu=0., sigma=.5):
 
 class ActFun_adp(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, input):  # input = membrane potential- threshold
+    def forward(ctx, input):
         ctx.save_for_backward(input)
-        return input.gt(0).float()  # is firing ???
+        return input.gt(0).float()
 
     @staticmethod
     def backward(ctx, grad_output):  # approximate the gradients
@@ -112,33 +98,26 @@ class ActFun_adp(torch.autograd.Function):
         return grad_input * temp.float() * gamma
         # return grad_input
 
-
 act_fun_adp = ActFun_adp.apply
 
-def mem_update_adp(inputs, mem, spike, tau_adp,tau_m, b, dt=1, isAdapt=1):
+def mem_update_adp(inputs, mem, spk, tau_adp,tau_m, b):
     alpha = tau_m    
-    ro = tau_adp
+    rho = tau_adp
 
-    if isAdapt:
-        beta = 1.8
-    else:
-        beta = 0.
+    b = rho * b + (1 - rho) * spk
+    B = b_j0 + 1.8 * b
 
-    b = ro * b + (1 - ro) * spike
-    B = b_j0 + beta * b
-
-    d_mem = -mem + inputs
-    mem = mem + d_mem*alpha
-    # mem = (1-alpha)*(1-spike)*mem+inputs
+    d_mem = (-mem + inputs) * alpha
+    mem = mem + d_mem
     inputs_ = mem - B
 
-    spike = act_fun_adp(inputs_)  # act_fun : approximation firing function
-    mem = (1-spike)*mem
+    spk = act_fun_adp(inputs_)
+    mem = (1-spk)*mem
 
-    return mem, spike, B, b
+    return mem, spk, B, b
 
 
-def output_Neuron(inputs, mem, tau_m, dt=1):
+def output_Neuron(inputs, mem, tau_m):
     """
     The read out neuron is leaky integrator without spike
     """
@@ -147,22 +126,14 @@ def output_Neuron(inputs, mem, tau_m, dt=1):
     mem = (1-tau_m)*mem+d_mem*tau_m
   
     return mem
-###############################################################################################
-###############################################################################################
-###############################################################################################
+
+
 class sigmoid_beta(nn.Module):
     def __init__(self, alpha = 1.,is_train=False):
         super(sigmoid_beta,self).__init__()
 
-        # initialize alpha
-        if alpha == None:
-            self.alpha = nn.Parameter(torch.tensor(1.)) # create a tensor out of alpha
-        else:
-            self.alpha = nn.Parameter(torch.tensor(alpha)) # create a tensor out of alpha
-
-            
+        self.alpha = nn.Parameter(torch.tensor(alpha)) # create a tensor out of alpha
         self.alpha.requiresGrad = is_train # set requiresGrad to true!
-        # self.alpha=alpha
 
     def forward(self, x):
         if (self.alpha == 0.0):
@@ -174,8 +145,6 @@ class SNN(nn.Module):
     def __init__(self, input_size, hidden_size,output_size, n_timesteps, P):
         super(SNN, self).__init__()
         
-        print('SNN-lc ', P)
-        
         self.P = P
         self.step = n_timesteps // self.P
         
@@ -184,7 +153,7 @@ class SNN(nn.Module):
         self.output_size = output_size
         self.n_timesteps = n_timesteps
         
-        self.rnn_name = 'SNN-lc 2 layer cell'
+        self.rnn_name = 'Layers'
 
         self.layer1_x = nn.Linear(input_size, hidden_size)
         self.layer1_r = nn.Linear(hidden_size, hidden_size)
@@ -228,10 +197,6 @@ class SNN(nn.Module):
         nn.init.zeros_(self.layer3_x.bias)
         nn.init.zeros_(self.layer3_tauM.bias)
 
-        # self.bn1a = nn.BatchNorm1d(hidden_size)
-        # self.bn1b = nn.BatchNorm1d(hidden_size)
-        # self.bn2 = nn.BatchNorm1d(output_size)
-
         self.bn1a = SeparatedBatchNorm1d(hidden_size,max_length=100)
         self.bn1b = SeparatedBatchNorm1d(hidden_size,max_length=100)
         self.bn2a = SeparatedBatchNorm1d(hidden_size,max_length=100)
@@ -253,11 +218,9 @@ class SNN(nn.Module):
         
     def forward(self, inputs, h,i=None):
         self.fr = 0
-        
-        outputs = []
-        hiddens = []
+        outputs, hiddens = [], []
  
-        b,l,dim = inputs.shape
+        b, l, dim = inputs.shape
         T = l
 
         for x_i in range(l):
@@ -272,13 +235,13 @@ class SNN(nn.Module):
             dense_x = self.bn1a(self.layer1_x(x), i) + self.bn1b(self.layer1_r(h[1]), i)
             tauM1 = self.act1m(self.layer1_tauM(torch.cat((dense_x, h[0]), dim = -1)))
             tauAdp1 = self.act1a(self.layer1_tauAdp(torch.cat((dense_x, h[2]), dim = -1)))        
-            mem_1, spk_1, _, b_1 = mem_update_adp(dense_x, mem = h[0], spike = h[1], tau_adp = tauAdp1, tau_m = tauM1, b = h[2])
+            mem_1, spk_1, _, b_1 = mem_update_adp(dense_x, mem = h[0], spk = h[1], tau_adp = tauAdp1, tau_m = tauM1, b = h[2])
 
             
             dense_x2 = self.bn2a(self.layer2_x(spk_1), i) + self.bn2b(self.layer2_r(h[1]), i)
             tauM2 = self.act2m(self.layer2_tauM(torch.cat((dense_x2, h[3]), dim = -1)))
             tauAdp2 = self.act2a(self.layer2_tauAdp(torch.cat((dense_x2, h[5]), dim = -1)))  
-            mem_2, spk_2, _, b_2 = mem_update_adp(dense_x2, mem = h[3], spike = h[4], tau_adp = tauAdp2, tau_m = tauM2, b = h[5])
+            mem_2, spk_2, _, b_2 = mem_update_adp(dense_x2, mem = h[3], spk = h[4], tau_adp = tauAdp2, tau_m = tauM2, b = h[5])
 
 
             dense3_x = self.bn2(self.layer3_x(spk_2), i)
@@ -298,7 +261,6 @@ class SNN(nn.Module):
 
             self.fr = self.fr+ (spk_1.detach().cpu().numpy().mean()+spk_2.detach().cpu().numpy().mean())/2.
                 
-        # output = torch.as_tensor(outputs)
         final_state = h
         self.fr = self.fr/T
         return outputs, final_state, hiddens
