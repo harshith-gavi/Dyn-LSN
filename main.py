@@ -207,9 +207,9 @@ parser.add_argument('--parts', type=int, default=100, help='Parts to split the s
 
 parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
 parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
-parser.add_argument('--epochs', type=int, default=75, help='Number of Epochs')
+parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
 parser.add_argument('--lr', type=float, default=3e-3, help='Learning rate')
-parser.add_argument('--when', nargs='+', type=int, default=[30, 40, 50], help='Epochs where Learning rate decays')
+parser.add_argument('--when', nargs='+', type=int, default=[20, 40, 60, 80], help='Epochs where Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adamax', help='Optimiser')
 parser.add_argument('--wnorm', action='store_false', help='Weight normalization (default: True)')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
@@ -305,7 +305,7 @@ for epoch in range(1, epochs + 1):
         print('Test Accuracy:', test_acc.item())
       
         if epoch in args.when :
-            lr *= 0.5
+            lr *= 0.1
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
         
