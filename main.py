@@ -119,7 +119,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
         # data = data.view(-1, input_channels, seq_length)
   
         B = target.size()[0]
-        step = model.network.step
+        # step = model.network.step
         xdata = data.clone()
         pdata = data.clone()
         
