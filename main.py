@@ -97,7 +97,6 @@ def test(model, test_loader):
 
 
 def train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar):
-    global steps
     global estimate_class_distribution
 
     batch_size = args.batch_size
@@ -196,8 +195,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 total_clf_loss += clf_loss.item()
                 total_regularizaton_loss += regularizer #.item()
                 total_oracle_loss += oracle_loss.item()
-        
-        steps += seq_length
 
         progress_bar.update(1)
 
@@ -268,7 +265,6 @@ if len(args.load) > 0:
 model.cuda()
 print('Model: ', model)
 
-steps = 0
 best_acc = 0.0
 optimizer = None
 lr = args.lr
@@ -302,8 +298,11 @@ for epoch in range(1, epochs + 1):
         print('\nLoss:', train_loss, end = '\t')
         print('Accuracy:', train_acc.item(), end = '\t')
         val_loss, val_acc = test(model, val_loader)
-        print('Validation Loss:', val_loss, end = '\t')
+        print('\nValidation Loss:', val_loss, end = '\t')
         print('Validation Accuracy:', val_acc.item())
+        test_loss, test_acc = test(model, test_loader)
+        print('\nTest Loss:', test_loss, end = '\t')
+        print('Test Accuracy:', Test_acc.item())
       
         if epoch in args.when :
             lr *= 0.5
