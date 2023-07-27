@@ -5,39 +5,13 @@ from torch import nn
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch.nn import init
-# from torch.autograd import Variable
 import math
 
-# def create_exp_dir(path, scripts_to_save=None):
-#     if not os.path.exists(path):
-#         os.mkdir(path)
-
-#     print('Experiment dir : {}'.format(path))
-#     if scripts_to_save is not None:
-#         os.mkdir(os.path.join(path, 'scripts'))
-#         for script in scripts_to_save:
-#             dst_file = os.path.join(path, 'scripts', os.path.basename(script))
-#             shutil.copyfile(script, dst_file)
-            
-
-# def model_save(fn, model, criterion, optimizer):
-#     with open(fn, 'wb') as f:
-#         torch.save([model, criterion, optimizer], f)
-
-# def model_load(fn):
-#     with open(fn, 'rb') as f:
-#         model, criterion, optimizer = torch.load(f)
-#     return model, criterion, optimizer
-
-# def save_checkpoint(state, is_best, prefix, filename='_snn_sota_2layer_checkpoint.pth.tar'):
-#     print('saving at ', prefix+filename)
-#     torch.save(state, prefix+filename)
-#     if is_best:
-#         shutil.copyfile(prefix+filename, prefix+ '_snn_model_sota_2layer_best.pth.tar')
-
-
-# def count_parameters(model):
-#     return sum(p.numel() for p in model.network.parameters() if p.requires_grad)
+def save_checkpoint(state, is_best, prefix, filename='_snn_sota_2layer_checkpoint.pth.tar'):
+    print('saving at ', prefix+filename)
+    torch.save(state, prefix+filename)
+    if is_best:
+        shutil.copyfile(prefix+filename, prefix+ '_snn_model_sota_2layer_best.pth.tar')
 
 class SeparatedBatchNorm1d(nn.Module):
 
