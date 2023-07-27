@@ -15,13 +15,13 @@ import torch.optim as optim
 from utils import *
 from snn_models_LIF4_save4_l2 import *
 
-def data_generator(dataset, batch_size, datapath, shuffle=True):
+def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
     if dataset == 'SHD':
         shd_train = h5py.File(datapath + 'train_data/SHD/shd_train.h5', 'r')
         shd_test = h5py.File(datapath + 'test_data/SHD/shd_test.h5', 'r')
 
-        shd_train = data_mod(shd_train['spikes'], shd_train['labels'], batch_size = batch_size, step_size = 100, input_size = 700, max_time = 1.37)
-        shd_test = data_mod(shd_test['spikes'], shd_test['labels'], batch_size = 1, step_size = 100, input_size = 700, max_time = 1.37)
+        shd_train = data_mod(shd_train['spikes'], shd_train['labels'], batch_size = batch_size, step_size = time_slice, input_size = 700, max_time = 1.37)
+        shd_test = data_mod(shd_test['spikes'], shd_test['labels'], batch_size = 1, step_size = time_slice, input_size = 700, max_time = 1.37)
         
         train_loader = shd_train[:int(0.9 * len(shd_train))]
         val_loader = shd_train[int(0.9 * len(shd_train)):]
@@ -243,6 +243,7 @@ torch.cuda.manual_seed(args.seed)
 if args.dataset in ['SHD']:
     train_loader, val_loader, test_loader, seq_length, input_channels, n_classes = data_generator(args.dataset, 
                                                                      batch_size=args.batch_size,
+                                                                     time_slice=args.parts,
                                                                      datapath=args.datapath, 
                                                                      shuffle=(not args.per_ex_stats))
     estimate_class_distribution = torch.zeros(n_classes, args.parts, n_classes, dtype=torch.float)
@@ -316,7 +317,7 @@ for epoch in range(1, epochs + 1):
                 'epoch': epoch + 1,
                 'state_dict': model.state_dict(),
                 'best_acc': best_acc,
-                'optimizer' : optimizer.state_dict(),
+                'optimizer': optimizer.state_dict(),
             }, is_best, prefix=prefix)
  
         all_train_losses.append(train_loss)
