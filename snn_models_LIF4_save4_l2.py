@@ -146,7 +146,7 @@ class SNN(nn.Module):
         super(SNN, self).__init__()
         
         self.P = P
-        self.step = n_timesteps // self.P
+        # self.step = n_timesteps // self.P
         
         self.input_size = input_size
         self.hidden_size = hidden_size 
@@ -267,16 +267,11 @@ class SNN(nn.Module):
 
 class SeqModel(nn.Module):
     def __init__(self, ninp, nhid, nout, wnorm=True, n_timesteps=1.4, parts=100):
-
         super(SeqModel, self).__init__()
         self.nout = nout
         self.nhid = nhid
-
         self.rnn_name = 'SNN'
-
         self.network = SNN(input_size=ninp, hidden_size=nhid, output_size=nout,n_timesteps=n_timesteps, P=parts)
-        
-        # self.l2_loss = nn.MSELoss()
 
     def forward(self, inputs, hidden):
         outputs, hidden, hiddens= self.network.forward(inputs, hidden)
