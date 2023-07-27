@@ -5,39 +5,39 @@ from torch import nn
 from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 from torch.nn import init
-from torch.autograd import Variable
+# from torch.autograd import Variable
 import math
 
-def create_exp_dir(path, scripts_to_save=None):
-    if not os.path.exists(path):
-        os.mkdir(path)
+# def create_exp_dir(path, scripts_to_save=None):
+#     if not os.path.exists(path):
+#         os.mkdir(path)
 
-    print('Experiment dir : {}'.format(path))
-    if scripts_to_save is not None:
-        os.mkdir(os.path.join(path, 'scripts'))
-        for script in scripts_to_save:
-            dst_file = os.path.join(path, 'scripts', os.path.basename(script))
-            shutil.copyfile(script, dst_file)
+#     print('Experiment dir : {}'.format(path))
+#     if scripts_to_save is not None:
+#         os.mkdir(os.path.join(path, 'scripts'))
+#         for script in scripts_to_save:
+#             dst_file = os.path.join(path, 'scripts', os.path.basename(script))
+#             shutil.copyfile(script, dst_file)
             
 
-def model_save(fn, model, criterion, optimizer):
-    with open(fn, 'wb') as f:
-        torch.save([model, criterion, optimizer], f)
+# def model_save(fn, model, criterion, optimizer):
+#     with open(fn, 'wb') as f:
+#         torch.save([model, criterion, optimizer], f)
 
-def model_load(fn):
-    with open(fn, 'rb') as f:
-        model, criterion, optimizer = torch.load(f)
-    return model, criterion, optimizer
+# def model_load(fn):
+#     with open(fn, 'rb') as f:
+#         model, criterion, optimizer = torch.load(f)
+#     return model, criterion, optimizer
 
-def save_checkpoint(state, is_best, prefix, filename='_snn_sota_2layer_checkpoint.pth.tar'):
-    print('saving at ', prefix+filename)
-    torch.save(state, prefix+filename)
-    if is_best:
-        shutil.copyfile(prefix+filename, prefix+ '_snn_model_sota_2layer_best.pth.tar')
+# def save_checkpoint(state, is_best, prefix, filename='_snn_sota_2layer_checkpoint.pth.tar'):
+#     print('saving at ', prefix+filename)
+#     torch.save(state, prefix+filename)
+#     if is_best:
+#         shutil.copyfile(prefix+filename, prefix+ '_snn_model_sota_2layer_best.pth.tar')
 
 
-def count_parameters(model):
-    return sum(p.numel() for p in model.network.parameters() if p.requires_grad)
+# def count_parameters(model):
+#     return sum(p.numel() for p in model.network.parameters() if p.requires_grad)
 
 class SeparatedBatchNorm1d(nn.Module):
 
@@ -234,19 +234,16 @@ class SNN(nn.Module):
 
         nn.init.xavier_normal_(self.layer1_x.weight)
         nn.init.orthogonal_(self.layer1_r.weight)
-        # nn.init.xavier_normal_(self.layer1_tauM.weight)
         nn.init.xavier_normal_(self.layer1_tauM.weight)
         nn.init.xavier_normal_(self.layer1_tauAdp.weight)
 
         nn.init.xavier_normal_(self.layer2_x.weight)
         nn.init.orthogonal_(self.layer2_r.weight)
-        # nn.init.xavier_normal_(self.layer1_tauM.weight)
         nn.init.xavier_normal_(self.layer2_tauM.weight)
         nn.init.xavier_normal_(self.layer2_tauAdp.weight)
 
         nn.init.xavier_normal_(self.layer3_x.weight)
         nn.init.xavier_normal_(self.layer3_tauM.weight)
-
 
         nn.init.zeros_(self.layer1_x.bias)
         nn.init.zeros_(self.layer1_tauM.bias)
@@ -296,11 +293,7 @@ class SNN(nn.Module):
                 x = torch.split(inputs, split_size_or_sections=1, dim=1)
                 i = x_i
                 x = x[x_i]
-                x = torch.squeeze(x, dim = 1)
-                
-            # x = inputs[:,0,x_i].view(b,1)
-            # x = inputs[:,0,i].view(b,1)
-            
+                x = torch.squeeze(x, dim = 1)          
             
             dense_x = self.bn1a(self.layer1_x(x), i) + self.bn1b(self.layer1_r(h[1]), i)
             tauM1 = self.act1m(self.layer1_tauM(torch.cat((dense_x, h[0]), dim = -1)))
@@ -340,7 +333,7 @@ class SeqModel(nn.Module):
     def __init__(self, ninp, nhid, nout, wnorm=True, n_timesteps=1.4, parts=100):
 
         super(SeqModel, self).__init__()
-        self.nout = nout    # Should be the number of classes
+        self.nout = nout
         self.nhid = nhid
 
         self.rnn_name = 'SNN'
@@ -350,9 +343,6 @@ class SeqModel(nn.Module):
         # self.l2_loss = nn.MSELoss()
 
     def forward(self, inputs, hidden):
-        # inputs = inputs.permute(2, 0, 1)  
-        # print(inputs.shape) # L,B,d
-
         outputs, hidden, hiddens= self.network.forward(inputs, hidden)
 
         recon_loss = torch.zeros(1, device=inputs.device)
