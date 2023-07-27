@@ -206,7 +206,7 @@ parser.add_argument('--batch_size', type=int, default=128, metavar='N', help='Ba
 parser.add_argument('--parts', type=int, default=100, help='Parts to split the sequential input into')
 
 parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
-parser.add_argument('--nhid', type=int, default=128, help='Number of Hidden units')
+parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
 parser.add_argument('--epochs', type=int, default=75, help='Number of Epochs')
 parser.add_argument('--lr', type=float, default=3e-3, help='Learning rate')
 parser.add_argument('--when', nargs='+', type=int, default=[30, 40, 50], help='Epochs where Learning rate decays')
