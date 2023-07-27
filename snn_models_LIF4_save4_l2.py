@@ -122,10 +122,10 @@ def output_Neuron(inputs, mem, tau_m):
 
 
 class sigmoid_beta(nn.Module):
-    def __init__(self, alpha = 1.,is_train=False):
+    def __init__(self, alpha = 1.):
         super(sigmoid_beta,self).__init__()
 
-        self.alpha = nn.Parameter(torch.tensor(alpha)) # create a tensor out of alpha
+        self.alpha = nn.Parameter(torch.tensor(alpha))
         self.alpha.requiresGrad = is_train # set requiresGrad to true!
 
     def forward(self, x):
@@ -139,7 +139,6 @@ class SNN(nn.Module):
         super(SNN, self).__init__()
         
         self.P = P
-        # self.step = n_timesteps // self.P
         
         self.input_size = input_size
         self.hidden_size = hidden_size 
@@ -161,12 +160,11 @@ class SNN(nn.Module):
         self.layer3_x = nn.Linear(hidden_size, output_size)
         self.layer3_tauM = nn.Linear(output_size+output_size, output_size)
 
-
-        self.act1m = sigmoid_beta(is_train=True)
-        self.act1a = sigmoid_beta(is_train=True)
-        self.act2m = sigmoid_beta(is_train=True)
-        self.act2a = sigmoid_beta(is_train=True)
-        self.act3 = sigmoid_beta(is_train=True)
+        self.act1m = sigmoid_beta()
+        self.act1a = sigmoid_beta()
+        self.act2m = sigmoid_beta()
+        self.act2a = sigmoid_beta()
+        self.act3 = sigmoid_beta()
 
         nn.init.xavier_normal_(self.layer1_x.weight)
         nn.init.orthogonal_(self.layer1_r.weight)
@@ -268,7 +266,6 @@ class SeqModel(nn.Module):
 
     def forward(self, inputs, hidden):
         outputs, hidden, hiddens= self.network.forward(inputs, hidden)
-
         recon_loss = torch.zeros(1, device=inputs.device)
         return outputs, hidden, recon_loss
 
