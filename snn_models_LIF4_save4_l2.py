@@ -126,7 +126,7 @@ class sigmoid_beta(nn.Module):
         super(sigmoid_beta,self).__init__()
 
         self.alpha = nn.Parameter(torch.tensor(alpha))
-        self.alpha.requiresGrad = is_train # set requiresGrad to true!
+        self.alpha.requiresGrad = True
 
     def forward(self, x):
         if (self.alpha == 0.0):
