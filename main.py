@@ -145,10 +145,13 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                     if args.per_ex_stats:
                         oracle_prob = estimatedDistribution[batch_idx*batch_size:(batch_idx+1)*batch_size, p]
                     else:
+                        PRINT('I DONT THINK SO')
                         oracle_prob = 0*estimate_class_distribution[target, p] + (1.0/n_classes)
                 else:
+                    PRINT('MAYBE HIER?')
                     oracle_prob = estimate_class_distribution[target, p]
             else:
+                print('HIER?')
                 oracle_prob = F.one_hot(target).float() 
 
             
