@@ -296,12 +296,12 @@ for epoch in range(1, epochs + 1):
 
         train_loss, train_acc = test(model, train_loader)
         print('\nLoss:', train_loss, end = '\t')
-        print('Accuracy:', train_acc.item(), end = '\t')
+        print('Accuracy:', train_acc.item())
         val_loss, val_acc = test(model, val_loader)
-        print('\nValidation Loss:', val_loss, end = '\t')
+        print('Validation Loss:', val_loss, end = '\t')
         print('Validation Accuracy:', val_acc.item())
         test_loss, test_acc = test(model, test_loader)
-        print('\nTest Loss:', test_loss, end = '\t')
+        print('Test Loss:', test_loss, end = '\t')
         print('Test Accuracy:', test_acc.item())
       
         if epoch in args.when :
