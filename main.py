@@ -149,8 +149,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 else:
                     oracle_prob = estimate_class_distribution[target, p]
             else:
-                print(target)
-                oracle_prob = F.one_hot(target).float() 
+                oracle_prob = F.one_hot(target, num_classes = 20).float() 
 
             
             o, h, hs = model.network.forward(x, h ,p)
