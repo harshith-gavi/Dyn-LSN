@@ -52,7 +52,6 @@ def data_mod(X, y, batch_size, step_size, input_size, max_time, shuffle=False):
     return mod_data
 
 def save_checkpoint(state, is_best, prefix, filename='_snn_sota_2layer_checkpoint.pth.tar'):
-    print('saving at ', prefix+filename)
     torch.save(state, prefix+filename)
     if is_best:
         shutil.copyfile(prefix+filename, prefix+ '_snn_model_sota_2layer_best.pth.tar')
