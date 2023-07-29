@@ -148,6 +148,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                         oracle_prob = 0*estimate_class_distribution[target, p] + (1.0/n_classes)
                 else:
                     oracle_prob = estimate_class_distribution[target, p]
+                    print(oracle_prob.shape)
             else:
                 oracle_prob = F.one_hot(target).float() 
 
