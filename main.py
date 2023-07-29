@@ -148,7 +148,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                         oracle_prob = 0*estimate_class_distribution[target, p] + (1.0/n_classes)
                 else:
                     oracle_prob = estimate_class_distribution[target, p]
-                    print(oracle_prob.shape)
             else:
                 oracle_prob = F.one_hot(target).float() 
 
@@ -179,6 +178,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 clf_loss = (p+1)/(_PARTS)*nll_loss
                 clf_loss = clf_loss.mean()
                 # clf_loss = (p+1)/(_PARTS)*F.cross_entropy(output, target)
+                print(oracle_prob.shape, output.shape)
                 oracle_loss = (1-(p+1)/(_PARTS)) * 1.0 *torch.mean( -oracle_prob * output)
                     
                 regularizer = get_regularizer_named_params(named_params, args, _lambda = 1.0)
