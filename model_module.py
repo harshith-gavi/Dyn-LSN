@@ -121,7 +121,7 @@ def output_Neuron(inputs, mem, tau_m):
 
 
 class sigmoid_beta(nn.Module):
-    def __init__(self, alpha = 1.):
+    def __init__(self, alpha = 1.1):
         super(sigmoid_beta,self).__init__()
 
         self.alpha = nn.Parameter(torch.tensor(alpha))
@@ -144,7 +144,7 @@ class SNN(nn.Module):
         self.output_size = output_size
         self.n_timesteps = n_timesteps
         
-        self.rnn_name = 'Layers'
+        self.rnn_name = 'SNN'
 
         self.layer1_x = nn.Linear(input_size, hidden_size)
         self.layer1_r = nn.Linear(hidden_size, hidden_size)
@@ -238,13 +238,6 @@ class SNN(nn.Module):
             tauM3 = self.act3(self.layer3_tauM(torch.cat((dense3_x, h[6]), dim = -1)))
             mem_3 = output_Neuron(dense3_x, mem = h[6], tau_m = tauM3)
 
-            # out = mem_3
-
-            # h = (mem_1,spk_1,b_1,
-            #     mem_2,spk_2,b_2, 
-            #     mem_3,
-            #     out)
-
             h = (mem_1,spk_1,b_1,
                 mem_2,spk_2,b_2, 
                 mem_3)
@@ -264,7 +257,7 @@ class SeqModel(nn.Module):
         super(SeqModel, self).__init__()
         self.nout = nout
         self.nhid = nhid
-        self.rnn_name = 'SNN'
+        self.rnn_name = 'Seq-SNN'
         self.network = SNN(input_size=ninp, hidden_size=nhid, output_size=nout,n_timesteps=n_timesteps, P=parts)
 
     def forward(self, inputs, hidden):
@@ -282,8 +275,5 @@ class SeqModel(nn.Module):
                 weight.new(bsz,self.nhid).zero_(),
                 weight.new(bsz,self.nhid).fill_(b_j0),
 
-                # layer 3
-                weight.new(bsz,self.nout).zero_(),
-                # sum spike
-                # weight.new(bsz,self.nout).zero_(),
+                weight.new(bsz,self.nout).zero_()
                 )
