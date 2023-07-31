@@ -13,7 +13,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from utils import *
-from snn_models_LIF4_save4_l2 import *
+from model_module import *
 
 def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
     if dataset == 'SHD':
