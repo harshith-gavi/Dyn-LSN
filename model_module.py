@@ -121,7 +121,7 @@ def output_Neuron(inputs, mem, tau_m):
 
 
 class sigmoid_beta(nn.Module):
-    def __init__(self, alpha = 1.1):
+    def __init__(self, alpha = 1.3):
         super(sigmoid_beta,self).__init__()
 
         self.alpha = nn.Parameter(torch.tensor(alpha))
