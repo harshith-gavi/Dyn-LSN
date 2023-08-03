@@ -116,7 +116,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
-        # data = data.view(-1, input_channels, seq_length)
   
         B = target.size()[0]
         # step = model.network.step
@@ -297,12 +296,14 @@ for epoch in range(1, epochs + 1):
         train_loss, train_acc = test(model, train_loader)
         print('\nLoss:', train_loss, end = '\t')
         print('Accuracy:', train_acc.item())
-        val_loss, val_acc = test(model, val_loader)
-        print('Validation Loss:', val_loss, end = '\t')
-        print('Validation Accuracy:', val_acc.item())
-        test_loss, test_acc = test(model, test_loader)
-        print('Test Loss:', test_loss, end = '\t')
-        print('Test Accuracy:', test_acc.item())
+        
+        if epoch%10 == 0:
+            val_loss, val_acc = test(model, val_loader)
+            print('Validation Loss:', val_loss, end = '\t')
+            print('Validation Accuracy:', val_acc.item())
+            test_loss, test_acc = test(model, test_loader)
+            print('Test Loss:', test_loss, end = '\t')
+            print('Test Accuracy:', test_acc.item())
       
         if epoch in args.when :
             lr *= 0.1
