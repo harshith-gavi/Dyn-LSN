@@ -201,13 +201,13 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset', type=str, default='SHD', help='Dataset')
 parser.add_argument('--datapath', type=str, default= '../data/', help='path to the dataset')
-parser.add_argument('--batch_size', type=int, default=64, metavar='N', help='Batch size')
+parser.add_argument('--batch_size', type=int, default=128, metavar='N', help='Batch size')#64
 parser.add_argument('--parts', type=int, default=100, help='Parts to split the sequential input into')
 
 parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
 parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
 parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
-parser.add_argument('--lr', type=float, default=5e-2, help='Learning rate')
+parser.add_argument('--lr', type=float, default=5e-3, help='Learning rate')
 parser.add_argument('--when', nargs='+', type=int, default=[15, 30, 50], help='Epochs when Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
 parser.add_argument('--wnorm', action='store_false', help='Weight normalization (default: True)')
