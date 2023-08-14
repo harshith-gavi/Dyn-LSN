@@ -209,7 +209,7 @@ parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden unit
 parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
 parser.add_argument('--lr', type=float, default=3e-3, help='Learning rate')
 parser.add_argument('--when', nargs='+', type=int, default=[15, 30], help='Epochs when Learning rate decays')
-parser.add_argument('--optim', type=str, default='Adamax', help='Optimiser')
+parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
 parser.add_argument('--wnorm', action='store_false', help='Weight normalization (default: True)')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
 parser.add_argument('--clip', type=float, default=1., help='Gradient Clipping')
@@ -265,7 +265,6 @@ model.cuda()
 print('Model: ', model)
 
 best_acc = 0.0
-optimizer = None
 lr = args.lr
 all_train_losses = []
 epochs = args.epochs
@@ -280,6 +279,8 @@ if optimizer is None:
     optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, weight_decay=args.wdecay)
     if args.optim == 'SGD':
         optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, momentum=0.9, weight_decay=args.wdecay)
+    if args.optim == 'Adam':
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=args.wdecay)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
