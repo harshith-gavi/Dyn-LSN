@@ -27,7 +27,7 @@ def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
         val_loader = shd_train[int(0.95 * len(shd_train)):]
         test_loader = shd_test
         n_classes = 20
-        seq_length = time_slice
+        seq_length = 1370
         input_channels = 700
 
     else:
