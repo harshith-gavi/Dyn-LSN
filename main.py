@@ -265,6 +265,7 @@ model.cuda()
 print('Model: ', model)
 
 best_acc = 0.0
+optimizer = None
 lr = args.lr
 all_train_losses = []
 epochs = args.epochs
