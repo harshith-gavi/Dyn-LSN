@@ -253,7 +253,7 @@ class SNN(nn.Module):
         return outputs, final_state, hiddens
 
 class SeqModel(nn.Module):
-    def __init__(self, ninp, nhid, nout, wnorm=True, n_timesteps=1.4, parts=100):
+    def __init__(self, ninp, nhid, nout, n_timesteps=1.4, parts=100):
         super(SeqModel, self).__init__()
         self.nout = nout
         self.nhid = nhid
