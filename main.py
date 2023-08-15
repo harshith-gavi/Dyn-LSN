@@ -210,7 +210,6 @@ parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
 parser.add_argument('--lr', type=float, default=5e-3, help='Learning rate')
 parser.add_argument('--when', nargs='+', type=int, default=[15, 30, 50], help='Epochs when Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
-parser.add_argument('--wnorm', action='store_false', help='Weight normalization (default: True)')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
 parser.add_argument('--clip', type=float, default=1., help='Gradient Clipping')
 parser.add_argument('--alpha', type=float, default=0.1, help='Alpha')
@@ -252,7 +251,6 @@ else:
 model = SeqModel(ninp = input_channels,
                  nhid = args.nhid,
                  nout = n_classes,
-                 wnorm = args.wnorm,
                  n_timesteps = seq_length, 
                  parts = args.parts)
 
