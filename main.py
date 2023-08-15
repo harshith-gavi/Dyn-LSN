@@ -52,9 +52,10 @@ def post_optimizer_updates( named_params, args, epoch ):
         sm.data.mul_( (1.0-beta) )
         sm.data.add_( beta * param - (beta/alpha) * lm )
 
-def get_regularizer_named_params( named_params, args, _lambda=1.0 ):
+def get_regularizer_named_params( named_params, args):
     alpha = args.alpha
     rho = args.rho
+    _lambda = args.lmda
     regularization = torch.zeros([]).to(device_1)
     for name in named_params:
         param, sm, lm, dm = named_params[name]
@@ -179,13 +180,13 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 # clf_loss = (p+1)/(_PARTS)*F.cross_entropy(output, target)
                 oracle_loss = (1-(p+1)/(_PARTS)) * 1.0 *torch.mean( -oracle_prob * output)
                     
-                regularizer = get_regularizer_named_params(named_params, args, _lambda = 1.0)
+                regularizer = get_regularizer_named_params(named_params, args)
                 loss = clf_loss + regularizer + oracle_loss
    
                 loss.backward()
 
-                if args.clip > 0:
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+                # if args.clip > 0:
+                #     torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
                     
                 optimizer.step()
                 post_optimizer_updates( named_params, args,epoch )
@@ -211,11 +212,11 @@ parser.add_argument('--lr', type=float, default=5e-3, help='Learning rate')
 parser.add_argument('--when', nargs='+', type=int, default=[15, 30, 50], help='Epochs when Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
-parser.add_argument('--clip', type=float, default=1., help='Gradient Clipping')
+# parser.add_argument('--clip', type=float, default=1., help='Gradient Clipping')
 parser.add_argument('--alpha', type=float, default=0.1, help='Alpha')
 parser.add_argument('--beta', type=float, default=0.5, help='Beta')
 parser.add_argument('--rho', type=float, default=0.0, help='Rho')
-parser.add_argument('--lmda', type=float, default=1.0, help='Lambda')
+parser.add_argument('--lmda', type=float, default=1.0, help='Regularisation strenght (Lambda)')
                     
 parser.add_argument('--seed', type=int, default=1111, help='Random seed')
 parser.add_argument('--load', type=str, default='', help='Path to load the model')
