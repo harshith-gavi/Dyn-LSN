@@ -203,7 +203,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default='SHD', help='Dataset')
 parser.add_argument('--datapath', type=str, default= '../data/', help='path to the dataset')
 parser.add_argument('--batch_size', type=int, default=128, metavar='N', help='Batch size')#64
-parser.add_argument('--parts', type=int, default=100, help='Parts to split the sequential input into')
+parser.add_argument('--parts', type=int, default=500, help='Parts to split the sequential input into')
 
 parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
 parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
