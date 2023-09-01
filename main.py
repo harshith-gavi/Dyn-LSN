@@ -262,11 +262,8 @@ lr = args.lr
 all_train_losses = []
 epochs = args.epochs
 first_update = False
-named_params = get_stats_named_params(model)
-exp_name = 'optim-' + args.optim + '-B-' + str(args.batch_size) + '-alpha-' + str(args.alpha) + '-beta-' + str(args.beta)
-if args.per_ex_stats: exp_name += '-per-ex-stats-'    
+named_params = get_stats_named_params(model)  
 print('args.per_ex_stats: ', args.per_ex_stats)
-prefix = args.save + exp_name
 
 if optimizer is None:
     optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, weight_decay=args.wdecay)
