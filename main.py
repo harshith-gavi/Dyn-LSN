@@ -202,14 +202,14 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset', type=str, default='SHD', help='Dataset')
 parser.add_argument('--datapath', type=str, default= '../data/', help='path to the dataset')
-parser.add_argument('--batch_size', type=int, default=128, metavar='N', help='Batch size')#64
-parser.add_argument('--parts', type=int, default=500, help='Parts to split the sequential input into')
+parser.add_argument('--batch_size', type=int, default=128, metavar='N', help='Batch size')
+parser.add_argument('--parts', type=int, default=250, help='Parts to split the sequential input into')
 
 parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
 parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
-parser.add_argument('--epochs', type=int, default=100, help='Number of Epochs')
+parser.add_argument('--epochs', type=int, default=150, help='Number of Epochs')
 parser.add_argument('--lr', type=float, default=5e-3, help='Learning rate')
-parser.add_argument('--when', nargs='+', type=int, default=[15, 30, 50, 75], help='Epochs when Learning rate decays')
+parser.add_argument('--when', nargs='+', type=int, default=[15, 30, 50, 75, 100], help='Epochs when Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
 # parser.add_argument('--clip', type=float, default=1., help='Gradient Clipping')
@@ -219,8 +219,6 @@ parser.add_argument('--rho', type=float, default=0.0, help='Weight update parame
 parser.add_argument('--lmda', type=float, default=1.0, help='Regularisation strength (Lambda)')
                     
 parser.add_argument('--seed', type=int, default=1111, help='Random seed')
-parser.add_argument('--load', type=str, default='', help='Path to load the model')
-parser.add_argument('--save', type=str, default='./models/', help='Path to save the model')
 parser.add_argument('--per_ex_stats', action='store_true', help='Use per example stats to compute the KL loss (default: False)')
 
 print('PARSING ARGUMENTS...')           
@@ -254,11 +252,6 @@ model = SeqModel(ninp = input_channels,
                  nout = n_classes,
                  n_timesteps = seq_length, 
                  parts = args.parts)
-
-if len(args.load) > 0:
-    model_ckp = torch.load(args.load)
-    model.load_state_dict(model_ckp['state_dict'])
-    print('best acc of loaded model: ',model_ckp['best_acc'])
 
 model.cuda()
 print('Model: ', model)
@@ -313,14 +306,6 @@ for epoch in range(1, epochs + 1):
         
         is_best = train_acc > best_acc
         best_acc = max(train_acc, best_acc)
-            
-        save_checkpoint({
-                'epoch': epoch + 1,
-                'state_dict': model.state_dict(),
-                'best_acc': best_acc,
-                'optimizer': optimizer.state_dict(),
-            }, is_best, prefix=prefix)
- 
         all_train_losses.append(train_loss)
 
 print('TESTING...')
