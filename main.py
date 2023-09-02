@@ -23,8 +23,9 @@ def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
         shd_train = data_mod(shd_train['spikes'], shd_train['labels'], batch_size = batch_size, step_size = time_slice, input_size = 700, max_time = 1.4)
         shd_test = data_mod(shd_test['spikes'], shd_test['labels'], batch_size = batch_size, step_size = time_slice, input_size = 700, max_time = 1.4)
         
-        train_loader = shd_train[:int(0.95 * len(shd_train))]
-        val_loader = shd_train[int(0.95 * len(shd_train)):]
+        # train_loader = shd_train[:int(0.95 * len(shd_train))]
+        # val_loader = shd_train[int(0.95 * len(shd_train)):]
+        train_loader = shd_train
         test_loader = shd_test
         n_classes = 20
         seq_length = 1.4
@@ -33,7 +34,8 @@ def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
     else:
         print('Dataset not included! Use a different dataset.')
         exit(1)
-    return train_loader, val_loader, test_loader, seq_length, input_channels, n_classes
+    # return train_loader, val_loader, test_loader, seq_length, input_channels, n_classes
+    return train_loader, test_loader, seq_length, input_channels, n_classes
 
 def get_stats_named_params( model ):
     named_params = {}
@@ -235,7 +237,7 @@ torch.set_default_tensor_type('torch.cuda.FloatTensor')
 torch.cuda.manual_seed(args.seed)
 
 if args.dataset in ['SHD']:
-    train_loader, val_loader, test_loader, seq_length, input_channels, n_classes = data_generator(args.dataset, 
+    train_loader, test_loader, seq_length, input_channels, n_classes = data_generator(args.dataset, 
                                                                      batch_size=args.batch_size,
                                                                      time_slice=args.parts,
                                                                      datapath=args.datapath, 
@@ -289,9 +291,9 @@ for epoch in range(1, epochs + 1):
         print('Accuracy:', train_acc.item())
         
         if epoch%10 == 0:
-            val_loss, val_acc = test(model, val_loader)
-            print('Validation Loss:', val_loss, end = '\t')
-            print('Validation Accuracy:', val_acc.item())
+            # val_loss, val_acc = test(model, val_loader)
+            # print('Validation Loss:', val_loss, end = '\t')
+            # print('Validation Accuracy:', val_acc.item())
             test_loss, test_acc = test(model, test_loader)
             print('Test Loss:', test_loss, end = '\t')
             print('Test Accuracy:', test_acc.item())
