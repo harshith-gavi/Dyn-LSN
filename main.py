@@ -258,10 +258,10 @@ model = SeqModel(ninp = input_channels,
 model.cuda()
 print('Model: ', model)
 
-best_acc = 0.0
 optimizer = None
 lr = args.lr
-all_train_losses = []
+all_train_losses, all_test_loses = [], []
+all_train_acc, all_test_acc = [], []
 epochs = args.epochs
 first_update = False
 named_params = get_stats_named_params(model)  
@@ -287,26 +287,28 @@ for epoch in range(1, epochs + 1):
         reset_named_params(named_params, args)
 
         train_loss, train_acc = test(model, train_loader)
+        all_train_losses.append(train_loss)
+        all_train_acc.append(train_acc)
         print('\nLoss:', train_loss, end = '\t')
         print('Accuracy:', train_acc.item())
         
-        if epoch%10 == 0:
+        if epoch%5 == 0:
             # val_loss, val_acc = test(model, val_loader)
             # print('Validation Loss:', val_loss, end = '\t')
             # print('Validation Accuracy:', val_acc.item())
             test_loss, test_acc = test(model, test_loader)
+            all_test_losses.append(test_loss)
+            all_test_acc.append(test_acc)
             print('Test Loss:', test_loss, end = '\t')
             print('Test Accuracy:', test_acc.item())
-      
+            
         if epoch in args.when :
             lr *= 0.1
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
-        
-        is_best = train_acc > best_acc
-        best_acc = max(train_acc, best_acc)
-        all_train_losses.append(train_loss)
 
-print('TESTING...')
-test_loss, test_acc = test(model, test_loader)
-print('Accuracy:', test_acc.item())
+
+df = pd.DataFrame({'train_loss': all_train_losses, 'train_acc': all_train_acc})
+df.to_csv('train_info.csv', index=False)
+df = pd.DataFrame({'test_loss': all_test_losses, 'test_acc': all_test_acc})
+df.to_csv('test_info.csv', index=False)
