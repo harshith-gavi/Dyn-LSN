@@ -260,7 +260,7 @@ print('Model: ', model)
 
 optimizer = None
 lr = args.lr
-all_train_losses, all_test_loses = [], []
+all_train_losses, all_test_losses = [], []
 all_train_acc, all_test_acc = [], []
 epochs = args.epochs
 first_update = False
