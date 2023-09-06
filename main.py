@@ -287,13 +287,13 @@ for epoch in range(1, epochs + 1):
         all_train_losses.append(train_loss)
         all_train_acc.append(train_acc)
         print('\nLoss:', train_loss, end = '\t')
-        print('Accuracy:', int(train_acc.item()))
+        print('Accuracy:', float(train_acc.item()))
 
         test_loss, test_acc = test(model, test_loader)
         all_test_losses.append(test_loss)
         all_test_acc.append(test_acc)
         print('Test Loss:', test_loss, end = '\t')
-        print('Test Accuracy:', int(test_acc.item()))
+        print('Test Accuracy:', float(test_acc.item()))
         
         # if epoch%5 == 0:
             # val_loss, val_acc = test(model, val_loader)
