@@ -310,6 +310,6 @@ for epoch in range(1, epochs + 1):
 
 
 df = pd.DataFrame({'train_loss': all_train_losses, 'train_acc': all_train_acc})
-df.to_csv('train_info.csv', index=False)
+df.to_csv('plots/parts_' + args.parts + '_train_info.csv', index=False)
 df = pd.DataFrame({'test_loss': all_test_losses, 'test_acc': all_test_acc})
-df.to_csv('test_info.csv', index=False)
+df.to_csv('plots/parts_' + args.parts + '_test_info.csv', index=False)
