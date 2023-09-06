@@ -291,25 +291,28 @@ for epoch in range(1, epochs + 1):
         all_train_losses.append(train_loss)
         all_train_acc.append(train_acc)
         print('\nLoss:', train_loss, end = '\t')
-        print('Accuracy:', train_acc.item())
+        print('Accuracy:', int(train_acc.item()))
+
+        test_loss, test_acc = test(model, test_loader)
+        all_test_losses.append(test_loss)
+        all_test_acc.append(test_acc)
+        print('Test Loss:', test_loss, end = '\t')
+        print('Test Accuracy:', int(test_acc.item()))
         
-        if epoch%5 == 0:
+        # if epoch%5 == 0:
             # val_loss, val_acc = test(model, val_loader)
             # print('Validation Loss:', val_loss, end = '\t')
             # print('Validation Accuracy:', val_acc.item())
-            test_loss, test_acc = test(model, test_loader)
-            all_test_losses.append(test_loss)
-            all_test_acc.append(test_acc)
-            print('Test Loss:', test_loss, end = '\t')
-            print('Test Accuracy:', test_acc.item())
+            # test_loss, test_acc = test(model, test_loader)
+            # all_test_losses.append(test_loss)
+            # all_test_acc.append(test_acc)
+            # print('Test Loss:', test_loss, end = '\t')
+            # print('Test Accuracy:', test_acc.item())
             
         if epoch in args.when :
             lr *= 0.1
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
 
-
-df = pd.DataFrame({'train_loss': all_train_losses, 'train_acc': all_train_acc})
-df.to_csv('plots/parts_' + args.parts + '_train_info.csv', index=False)
-df = pd.DataFrame({'test_loss': all_test_losses, 'test_acc': all_test_acc})
-df.to_csv('plots/parts_' + args.parts + '_test_info.csv', index=False)
+plot_info(all_train_losses, all_test_loses, 'loss', args)
+plot_info(all_train_acc, all_test_acc, 'acc', args)
