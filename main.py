@@ -207,7 +207,7 @@ parser.add_argument('--parts', type=int, default=250, help='Parts to split the s
 parser.add_argument('--nlayers', type=int, default=2, help='Number of layers')
 parser.add_argument('--nhid', type=int, default=256, help='Number of Hidden units')
 parser.add_argument('--epochs', type=int, default=150, help='Number of Epochs')
-parser.add_argument('--lr', type=float, default=5e-3, help='Learning rate')
+parser.add_argument('--lr', type=float, default=1e-3, help='Learning rate')
 parser.add_argument('--when', nargs='+', type=int, default=[15, 30, 50, 75, 100], help='Epochs when Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
@@ -310,5 +310,5 @@ for epoch in range(1, epochs + 1):
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
 
-plot_info(all_train_losses, all_test_loses, 'loss', args)
+plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
