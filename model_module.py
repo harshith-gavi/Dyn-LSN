@@ -216,7 +216,7 @@ class SNN(nn.Module):
         for x_i in range(l):
             x = torch.squeeze(inputs, dim = 1)
             
-            if l>10:
+            if l>1:
                 x = torch.split(inputs, split_size_or_sections=1, dim=1)
                 i = x_i
                 x = x[x_i]
