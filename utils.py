@@ -151,3 +151,24 @@ def update_prob_estimates( model, args, train_loader, estimatedDistribution, est
     
     first_update = True
     return first_update
+
+def plot_info(tr, te, type, args):
+    if type == 'loss':
+        plt.figure(figsize=(12, 5))
+        plt.plot(range(1, args.epochs+1), tr, label='Training', color='red')
+        plt.plot(range(1, args.epochs+1), te, label='Testing', color='green')
+        plt.xlabel('Epoch')
+        plt.ylabel('Loss')
+        plt.title('Loss Over Epochs')
+        plt.legend()
+        plt.savefig('plots/parts_' + str(args.parts) + '_loss_plot.png')
+
+    elif type == 'acc':
+        plt.figure(figsize=(12, 5))
+        plt.plot(range(1, args.epochs+1), tr, label='Training', color='red')
+        plt.plot(range(1, args.epochs+1), te, label='Testing', color='green')
+        plt.xlabel('Epoch')
+        plt.ylabel('Accuracy')
+        plt.title('Accuracy Over Epochs')
+        plt.legend()
+        plt.savefig('plots/parts_' + str(args.parts) + '_acc_plot.png')
