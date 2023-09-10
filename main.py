@@ -263,6 +263,8 @@ if optimizer is None:
         optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, momentum=0.9, weight_decay=args.wdecay)
     if args.optim == 'Adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=args.wdecay)
+    if args.optim == 'AdamW':
+        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.01)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
