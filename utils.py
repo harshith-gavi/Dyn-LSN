@@ -81,7 +81,7 @@ def update_prob_estimates( model, args, train_loader, estimatedDistribution, est
         data = data.to_dense()
         
         B = target.size()[0]
-        step = model.network[0].step
+        step = model.network.step
         xdata = data.clone()
 
         T = inputs.size()[0]
