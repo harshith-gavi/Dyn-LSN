@@ -91,7 +91,7 @@ def update_prob_estimates( model, args, train_loader, estimatedDistribution, est
         
         for p in range(PARTS):
             # x, start, end = get_xt(p, step, T, inputs)
-             x = xdata[:, p:p+1 , :]
+            x = xdata[:, p:p+1 , :]
 
             with torch.no_grad():
                 if p==0:
