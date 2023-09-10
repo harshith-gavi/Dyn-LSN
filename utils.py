@@ -57,6 +57,8 @@ def get_xt(p, step, T, inputs):
     start = p*step
     end = (p+1)*step
     if (end >= T): end=T
+
+    print(inputs)
         
     x = inputs[ start : end ]
     return x, start, end
@@ -85,8 +87,7 @@ def update_prob_estimates( model, args, train_loader, estimatedDistribution, est
         xdata = data.clone()
 
         # T = inputs.size()[0]
-        T = xdata.size()[1]
-        print(T)
+        T = xdata.size()[0]
         
         for p in range(PARTS):
             # x, start, end = get_xt(p, step, T, inputs)
