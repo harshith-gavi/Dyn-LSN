@@ -141,10 +141,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
             
             if p<PARTS-1:
                 if epoch <0:
-                    if args.per_ex_stats:
-                        oracle_prob = estimatedDistribution[batch_idx*batch_size:(batch_idx+1)*batch_size, p]
-                    else:
-                        oracle_prob = 0*estimate_class_distribution[target, p] + (1.0/n_classes)
+                    oracle_prob = 0*estimate_class_distribution[target, p] + (1.0/n_classes)
                 else:
                     oracle_prob = estimate_class_distribution[target, p]
             else:
@@ -218,7 +215,6 @@ parser.add_argument('--rho', type=float, default=0.0, help='Weight update parame
 parser.add_argument('--lmda', type=float, default=1.0, help='Regularisation strength (Lambda)')
                     
 parser.add_argument('--seed', type=int, default=1111, help='Random seed')
-parser.add_argument('--per_ex_stats', action='store_true', help='Use per example stats to compute the KL loss (default: False)')
 
 print('PARSING ARGUMENTS...')           
 args = parser.parse_args()
@@ -238,11 +234,9 @@ if args.dataset in ['SHD']:
                                                                      batch_size=args.batch_size,
                                                                      time_slice=args.parts,
                                                                      datapath=args.datapath, 
-                                                                     shuffle=(not args.per_ex_stats))
+                                                                     shuffle = True)
     estimate_class_distribution = torch.zeros(n_classes, args.parts, n_classes, dtype=torch.float)
     estimatedDistribution = None
-    if args.per_ex_stats:
-        estimatedDistribution = torch.zeros(len(train_loader)*args.batch_size, args.parts, n_classes, dtype=torch.float)
 else:
     exit(1)
 
@@ -261,8 +255,7 @@ all_train_losses, all_test_losses = [], []
 all_train_acc, all_test_acc = [], []
 epochs = args.epochs
 first_update = False
-named_params = get_stats_named_params(model)  
-print('args.per_ex_stats: ', args.per_ex_stats)
+named_params = get_stats_named_params(model)
 
 if optimizer is None:
     optimizer = getattr(optim, args.optim)(model.parameters(), lr=lr, weight_decay=args.wdecay)
@@ -273,9 +266,6 @@ if optimizer is None:
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
-        if args.per_ex_stats and epoch%5 == 1 :
-            first_update = update_prob_estimates( model, args, train_loader, estimatedDistribution, estimate_class_distribution, first_update )
-
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
         k = 1
         train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
