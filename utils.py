@@ -85,7 +85,8 @@ def update_prob_estimates( model, args, train_loader, estimatedDistribution, est
         xdata = data.clone()
 
         # T = inputs.size()[0]
-        T = xdata.shape()[1]
+        T = xdata.size()[1]
+        print(T)
         
         for p in range(PARTS):
             # x, start, end = get_xt(p, step, T, inputs)
