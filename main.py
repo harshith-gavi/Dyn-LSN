@@ -264,7 +264,7 @@ if optimizer is None:
     if args.optim == 'Adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=args.wdecay)
     if args.optim == 'AdamW':
-        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.1)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.2)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
