@@ -58,7 +58,7 @@ def get_xt(p, step, T, inputs):
     end = (p+1)*step
     if (end >= T): end=T
 
-    print(inputs)
+    print(inputs.shape)
         
     x = inputs[ start : end ]
     return x, start, end
