@@ -84,10 +84,12 @@ def update_prob_estimates( model, args, train_loader, estimatedDistribution, est
         step = model.network.n_timesteps / model.network.P
         xdata = data.clone()
 
-        T = inputs.size()[0]
-
+        # T = inputs.size()[0]
+        T = xdata.size()[0]
+        
         for p in range(PARTS):
-            x, start, end = get_xt(p, step, T, inputs)
+            # x, start, end = get_xt(p, step, T, inputs)
+            x, start, end = get_xt(p, step, T, xdata)
 
             with torch.no_grad():
                 if p==0:
