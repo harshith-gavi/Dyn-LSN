@@ -165,6 +165,9 @@ class SNN(nn.Module):
         self.act2a = sigmoid_beta()
         self.act3 = sigmoid_beta()
 
+        self.drop1 = nn.Dropout(p=0.1)
+        self.drop2 = nn.Dropout(p=0.1)
+
         nn.init.xavier_normal_(self.layer1_x.weight)
         nn.init.orthogonal_(self.layer1_r.weight)
         nn.init.xavier_normal_(self.layer1_tauM.weight)
@@ -233,8 +236,9 @@ class SNN(nn.Module):
             tauAdp2 = self.act2a(self.layer2_tauAdp(torch.cat((dense_x2, h[5]), dim = -1)))  
             mem_2, spk_2, _, b_2 = mem_update_adp(dense_x2, mem = h[3], spk = h[4], tau_adp = tauAdp2, tau_m = tauM2, b = h[5])
 
-
-            dense3_x = self.bn2(self.layer3_x(spk_2), i)
+            d2_drop = self.drop2(spk_2)
+            # dense3_x = self.bn2(self.layer3_x(spk_2), i)
+            dense3_x = self.bn2(self.layer3_x(d2_drop), i)
             tauM3 = self.act3(self.layer3_tauM(torch.cat((dense3_x, h[6]), dim = -1)))
             mem_3 = output_Neuron(dense3_x, mem = h[6], tau_m = tauM3)
 
