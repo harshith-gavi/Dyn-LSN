@@ -244,17 +244,17 @@ class SNN(nn.Module):
             tauM3 = self.act3(self.layer3_tauM(torch.cat((dense3_x, h[6]), dim = -1)))
             mem_3 = output_Neuron(dense3_x, mem = h[6], tau_m = tauM3)
 
-            # h = (mem_1,spk_1,b_1,
-            #     mem_2,spk_2,b_2, 
-            #     mem_3)
+            h = (mem_1,spk_1,b_1,
+                mem_2,spk_2,b_2, 
+                mem_3)
 
             # h = (mem_1,spk_1,b_1,
             #     mem_2,d2_drop,b_2, 
             #     mem_3)
 
-            h = (mem_1,d1_drop,b_1,
-                mem_2,spk_2,b_2, 
-                mem_3)
+            # h = (mem_1,d1_drop,b_1,
+            #     mem_2,spk_2,b_2, 
+            #     mem_3)
             
             f_output = F.log_softmax(mem_3, dim=1)
             outputs.append(f_output)
