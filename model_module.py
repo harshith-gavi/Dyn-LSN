@@ -165,7 +165,7 @@ class SNN(nn.Module):
         self.act2a = sigmoid_beta()
         self.act3 = sigmoid_beta()
 
-        self.drop1 = nn.Dropout(p=0.3)
+        self.drop1 = nn.Dropout(p=0.4)
         self.drop2 = nn.Dropout(p=0.2)
 
         nn.init.xavier_normal_(self.layer1_x.weight)
