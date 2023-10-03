@@ -108,3 +108,5 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T_num, model, layer)
 
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
+
+  return clw, prun_rate, reg_rate
