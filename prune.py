@@ -4,9 +4,11 @@ import torch.nn as nn
 
 
 def synaptic_constraint(curr_w, prev_w):
-  '''
-  # INSERT DOCSTRING IN EVERY FUNCTION FOIR STYLE POINTS
-  '''
+    '''
+    Function that caculates the synaptic boundaries for a layer, given the current and previous epoch weights 
+    INPUT: curr_w (Tensor), prev_w (Tensor)
+    OUTPUT: curr_w (Tensor), R_pos (Tensor), R_neg (Tensor)
+    '''
     # Synaptic Boundaries
     max_val, max_ind = torch.max(abs(curr_w), dim=1)
     R_pos, R_neg = max_val.unsqueeze(1).expand(curr_w.shape), -max_val.unsqueeze(1).expand(curr_w.shape)
@@ -45,11 +47,12 @@ def synaptic_constraint(curr_w, prev_w):
 
     return curr_w, R_pos, R_neg
 
-
 def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T_num, model, layer):
-  '''
-  # INSERT DOCSTRING IN EVERY FUNCTION FOIR STYLE POINTS
-  '''
+    '''
+    Function that prunes and generates the connections between the presynaptic and postsynaptic neurons, given the current and next layer weights, synaptic boundaries, pruning rate, regeneration rate, and plasticity threshold 
+    INPUT: clw (Tensor), plw (Tensor), R_pos (Tensor), R_neg (Tensor), prun_rate (float), reg_rate (float), T_num (int), model (nn.module), layer (string)
+    OUTPUT: clw (Tensor), prun_rate (float), reg_rate (float)
+    '''
     prun_a, prun_b = 1, 0.00075                       # Pruning constants for updates
     reg_g = 1.1                                       # Regeneration constant for updates
 
@@ -69,7 +72,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T_num, model, layer)
 
     no_neu = torch.all(clw != 0, dim=0)
     N_cl = no_neu.sum().item()
-    if layer == 'hl':
+    if layer == 'h2':
          no_neu = torch.all(nlw != 0, dim=0)
          N_nl = no_neu.sum().item()
     else:
@@ -109,4 +112,4 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T_num, model, layer)
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
 
-  return clw, prun_rate, reg_rate
+    return clw, prun_rate, reg_rate
