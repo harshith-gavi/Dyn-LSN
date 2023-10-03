@@ -10,7 +10,13 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from utils import *
+from prune import *
 from model_module import *
+global START, MID = 36, 60                             # Pruning starts and slows at these epochs
+global E = 0.75                                        # Boundary Shrinking Factor
+global T = torch.full((700, 256), 5)                   # Number Threshold
+global prun_rate2, prun_rate3 = 0.05, 0.1
+global reg_rate2, reg_rate3 = 0.1, 0.05
 
 def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
     if dataset == 'SHD':
@@ -112,7 +118,9 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     
     T = seq_length
     #entropy = EntropyLoss()
-   
+
+    prev_w2 = model.layer1_x.weight.data.T
+    prev_w3 = model.layer2_x.weight.data.T
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
@@ -186,7 +194,16 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                     
                 optimizer.step()
                 post_optimizer_updates( named_params, args,epoch )
-            
+
+                curr_w2 = model.layer1_x.weight.data.T
+                curr_w3 = model.layer2_x.weight.data.T
+                curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2)
+                curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3)
+
+                if epoch > START:
+                    model.layer1_x.weight.data.T, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model.layer1_x, 'hl')
+                    model.layer2_x.weight.data.T, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model.layer2_x, 'h2')
+                    
                 train_loss += loss.item()
                 total_clf_loss += clf_loss.item()
                 total_regularizaton_loss += regularizer #.item()
