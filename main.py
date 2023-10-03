@@ -12,11 +12,12 @@ import torch.optim as optim
 from utils import *
 from prune import *
 from model_module import *
+
 global START, MID = 36, 60                             # Pruning starts and slows at these epochs
 global E = 0.75                                        # Boundary Shrinking Factor
 global T = torch.full((700, 256), 5)                   # Number Threshold
-global prun_rate2, prun_rate3 = 0.05, 0.1
-global reg_rate2, reg_rate3 = 0.1, 0.05
+global prun_rate2, prun_rate3 = 0.05, 0.05
+global reg_rate2, reg_rate3 = 0.05, 0.05
 
 def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
     if dataset == 'SHD':
@@ -119,8 +120,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     T = seq_length
     #entropy = EntropyLoss()
 
-    prev_w2 = model.layer1_x.weight.data.T
-    prev_w3 = model.layer2_x.weight.data.T
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
@@ -195,20 +194,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 optimizer.step()
                 post_optimizer_updates( named_params, args,epoch )
 
-                curr_w2 = model.layer1_x.weight.data.T
-                curr_w3 = model.layer2_x.weight.data.T
-                curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2)
-                curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3)
-
-                if epoch > START:
-                    model.layer1_x.weight.data.T, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model.layer1_x, 'hl')
-                    model.layer2_x.weight.data.T, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model.layer2_x, 'h2')
-                    
-                train_loss += loss.item()
-                total_clf_loss += clf_loss.item()
-                total_regularizaton_loss += regularizer #.item()
-                total_oracle_loss += oracle_loss.item()
-
         progress_bar.update(1)
 
 parser = argparse.ArgumentParser()
@@ -230,7 +215,10 @@ parser.add_argument('--alpha', type=float, default=0.1, help='Weight update para
 parser.add_argument('--beta', type=float, default=0.5, help='Weight update parameter (Beta)')
 parser.add_argument('--rho', type=float, default=0.0, help='Weight update parameter  (Rho)')
 parser.add_argument('--lmda', type=float, default=1.0, help='Regularisation strength (Lambda)')
-                    
+
+parser.add_argument('--prun_rate', nargs='+', type=float, default=[0.05, 0.05], help = 'Pruning rate per layer')
+parser.add_argument('--reg_rate', nargs='+', type=float, default=[0.05, 0.05], help = 'Regenration rate per layer')
+parser.add_argument('--t_num', type=int, default=5, help = 'Plasticity Threshold')
 parser.add_argument('--seed', type=int, default=1111, help='Random seed')
 
 print('PARSING ARGUMENTS...')           
@@ -271,6 +259,12 @@ lr = args.lr
 all_train_losses, all_test_losses = [], []
 all_train_acc, all_test_acc = [], []
 epochs = args.epochs
+prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
+reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
+T2 = torch.full((700, 256), args.t_num)
+T3 = torch.full((256, 256), args.t_num)
+START, MID = 36, 60                             # Pruning starts and slows at these epochs
+E = 0.75                                        # Boundary Shrinking Factor
 first_update = False
 named_params = get_stats_named_params(model)
 
@@ -287,6 +281,8 @@ for epoch in range(1, epochs + 1):
     if args.dataset in ['SHD']:
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
         k = 1
+        prev_w2 = model.layer1_x.weight.data.T
+        prev_w3 = model.layer2_x.weight.data.T
         train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
         progress_bar.close()
 
@@ -313,7 +309,21 @@ for epoch in range(1, epochs + 1):
             # all_test_acc.append(test_acc)
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
+
+        curr_w2 = model.layer1_x.weight.data.T
+        curr_w3 = model.layer2_x.weight.data.T
+        curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2)
+        curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3)
+
+        if epoch > START:
+            model.layer1_x.weight.data.T, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T2, model.layer1_x, 'hl')
+            model.layer2_x.weight.data.T, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T3, model.layer2_x, 'h2')
             
+        train_loss += loss.item()
+        total_clf_loss += clf_loss.item()
+        total_regularizaton_loss += regularizer #.item()
+        total_oracle_loss += oracle_loss.item()
+        
         if epoch in args.when :
             lr *= 0.1
             for param_group in optimizer.param_groups:
