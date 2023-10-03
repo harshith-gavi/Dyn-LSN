@@ -188,6 +188,11 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 optimizer.step()
                 post_optimizer_updates( named_params, args,epoch )
 
+                train_loss += loss.item()
+                total_clf_loss += clf_loss.item()
+                total_regularizaton_loss += regularizer #.item()
+                total_oracle_loss += oracle_loss.item()
+
         progress_bar.update(1)
 
 parser = argparse.ArgumentParser()
@@ -311,11 +316,6 @@ for epoch in range(1, epochs + 1):
         if epoch > START:
             model.layer1_x.weight.data.T, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model.layer1_x, 'hl')
             model.layer2_x.weight.data.T, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model.layer2_x, 'h2')
-            
-        train_loss += loss.item()
-        total_clf_loss += clf_loss.item()
-        total_regularizaton_loss += regularizer #.item()
-        total_oracle_loss += oracle_loss.item()
         
         if epoch in args.when :
             lr *= 0.1
