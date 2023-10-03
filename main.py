@@ -13,12 +13,6 @@ from utils import *
 from prune import *
 from model_module import *
 
-global START, MID = 36, 60                             # Pruning starts and slows at these epochs
-global E = 0.75                                        # Boundary Shrinking Factor
-global T = torch.full((700, 256), 5)                   # Number Threshold
-global prun_rate2, prun_rate3 = 0.05, 0.05
-global reg_rate2, reg_rate3 = 0.05, 0.05
-
 def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
     if dataset == 'SHD':
         shd_train = h5py.File(datapath + 'SHD/shd_train.h5', 'r')
