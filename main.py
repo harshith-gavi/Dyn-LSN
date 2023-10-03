@@ -310,9 +310,9 @@ for epoch in range(1, epochs + 1):
 
         curr_w2 = model.network.layer1_x.weight.data.T
         curr_w3 = model.network.layer2_x.weight.data.T
-        print('Before Synaptic Constraint: ', curr_w2)
+        temp = curr_w2
         curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2, T)
-        print('After Synaptic Constraint: ', curr_w2)
+        if curr_w2 == temp: print('not working?')
         curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3, T)
 
         if epoch > START:
