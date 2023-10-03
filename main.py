@@ -181,8 +181,8 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
    
                 loss.backward()
 
-                # if args.clip > 0:
-                #     torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+                if args.clip > 0:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
                     
                 optimizer.step()
                 post_optimizer_updates( named_params, args,epoch )
@@ -208,7 +208,7 @@ parser.add_argument('--lr', type=float, default=5e-4, help='Learning rate')
 parser.add_argument('--when', nargs='+', type=int, default=[20], help='Epochs when Learning rate decays')
 parser.add_argument('--optim', type=str, default='Adam', help='Optimiser')
 parser.add_argument('--wdecay', type=float, default=0., help='Weight decay')
-# parser.add_argument('--clip', type=float, default=1., help='Gradient Clipping')
+parser.add_argument('--clip', type=float, default=1., help='Gradient Clipping')
 parser.add_argument('--alpha', type=float, default=0.1, help='Weight update parameter (Alpha)')
 parser.add_argument('--beta', type=float, default=0.5, help='Weight update parameter (Beta)')
 parser.add_argument('--rho', type=float, default=0.0, help='Weight update parameter  (Rho)')
