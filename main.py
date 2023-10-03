@@ -194,6 +194,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 total_oracle_loss += oracle_loss.item()
 
         progress_bar.update(1)
+    return model
 
 parser = argparse.ArgumentParser()
 
@@ -281,7 +282,7 @@ for epoch in range(1, epochs + 1):
         k = 1
         prev_w2 = model.network.layer1_x.weight.data.T
         prev_w3 = model.network.layer2_x.weight.data.T
-        train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
+        model = train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
         progress_bar.close()
 
         reset_named_params(named_params, args)
