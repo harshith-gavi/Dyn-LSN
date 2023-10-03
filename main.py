@@ -255,8 +255,7 @@ all_train_acc, all_test_acc = [], []
 epochs = args.epochs
 prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
-T2 = torch.full((700, 256), args.t_num)
-T3 = torch.full((256, 256), args.t_num)
+T = args.t_num
 START, MID = 36, 60                             # Pruning starts and slows at these epochs
 E = 0.75                                        # Boundary Shrinking Factor
 first_update = False
@@ -306,12 +305,12 @@ for epoch in range(1, epochs + 1):
 
         curr_w2 = model.network.layer1_x.weight.data.T
         curr_w3 = model.network.layer2_x.weight.data.T
-        curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2)
-        curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3)
+        curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2, T)
+        curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3, T)
 
         if epoch > START:
-            model.layer1_x.weight.data.T, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T2, model.layer1_x, 'hl')
-            model.layer2_x.weight.data.T, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T3, model.layer2_x, 'h2')
+            model.layer1_x.weight.data.T, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model.layer1_x, 'hl')
+            model.layer2_x.weight.data.T, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model.layer2_x, 'h2')
             
         train_loss += loss.item()
         total_clf_loss += clf_loss.item()
