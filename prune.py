@@ -3,10 +3,10 @@ import torch
 import torch.nn as nn
 
 
-def synaptic_constraint(curr_w, prev_w):
+def synaptic_constraint(curr_w, prev_w, T):
     '''
-    Function that caculates the synaptic boundaries for a layer, given the current and previous epoch weights 
-    INPUT: curr_w (Tensor), prev_w (Tensor)
+    Function that caculates the synaptic boundaries for a layer, given the current and previous epoch weights, and Plasticity Theshold
+    INPUT: curr_w (Tensor), prev_w (Tensor), T (Tensor)
     OUTPUT: curr_w (Tensor), R_pos (Tensor), R_neg (Tensor)
     '''
     # Synaptic Boundaries
