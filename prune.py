@@ -49,7 +49,7 @@ def synaptic_constraint(curr_w, prev_w, T):
 
     return curr_w, R_pos, R_neg
 
-def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer):
+def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epoch):
     '''
     Function that prunes and generates the connections between the presynaptic and postsynaptic neurons, given the current and next layer weights, synaptic boundaries, pruning rate, regeneration rate, and plasticity threshold 
     INPUT: clw (Tensor), plw (Tensor), R_pos (Tensor), R_neg (Tensor), prun_rate (float), reg_rate (float), T (int), model (nn.module), layer (string)
