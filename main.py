@@ -275,8 +275,8 @@ for epoch in range(1, epochs + 1):
     if args.dataset in ['SHD']:
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
         k = 1
-        prev_w2 = model.layer1_x.weight.data.T
-        prev_w3 = model.layer2_x.weight.data.T
+        prev_w2 = model.network.layer1_x.weight.data.T
+        prev_w3 = model.network.layer2_x.weight.data.T
         train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
         progress_bar.close()
 
@@ -304,8 +304,8 @@ for epoch in range(1, epochs + 1):
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
 
-        curr_w2 = model.layer1_x.weight.data.T
-        curr_w3 = model.layer2_x.weight.data.T
+        curr_w2 = model.network.layer1_x.weight.data.T
+        curr_w3 = model.network.layer2_x.weight.data.T
         curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2)
         curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3)
 
