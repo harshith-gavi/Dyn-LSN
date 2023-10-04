@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-
 def synaptic_constraint(curr_w, prev_w, T):
     '''
     Function that caculates the synaptic boundaries for a layer, given the current and previous epoch weights, and Plasticity Theshold
