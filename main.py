@@ -262,7 +262,7 @@ epochs = args.epochs
 prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
 T = args.t_num
-START = 5                                       # Pruning starts at this epoch
+START = 36                                       # Pruning starts at this epoch
 first_update = False
 named_params = get_stats_named_params(model)
 
@@ -317,9 +317,9 @@ for epoch in range(1, epochs + 1):
         curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3, T)
 
         if epoch > START:
+            print('Plasticity')
             w2, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model, 'hl', epoch)
             model.network.layer2_x.weight.data = w2.T
-            print('After Plasticity: ', model.network.layer1_x.weight.data.T)
             w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model, 'h2', epoch)
             model.network.layer2_x.weight.data = w3.T
             
