@@ -279,8 +279,8 @@ for epoch in range(1, epochs + 1):
     if args.dataset in ['SHD']:
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
         k = 1
-        # prev_w2 = model.network.layer1_x.weight.data.T
-        # prev_w3 = model.network.layer2_x.weight.data.T
+        prev_w2 = model.network.layer1_x.weight.data.T
+        prev_w3 = model.network.layer2_x.weight.data.T
         model = train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
         progress_bar.close()
 
@@ -308,20 +308,20 @@ for epoch in range(1, epochs + 1):
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
 
-        # curr_w2 = model.network.layer1_x.weight.data.T
-        # curr_w3 = model.network.layer2_x.weight.data.T
-        # temp = curr_w2
-        # if torch.equal(prev_w2, curr_w2): print('smthng')
-        # curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2, T)
-        # if torch.equal(curr_w2, temp): print('bruh?')
-        # curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3, T)
+        curr_w2 = model.network.layer1_x.weight.data.T
+        curr_w3 = model.network.layer2_x.weight.data.T
+        temp = curr_w2
+        if torch.equal(prev_w2, curr_w2): print('smthng')
+        curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2, T)
+        if torch.equal(curr_w2, temp): print('bruh?')
+        curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3, T)
 
-        # if epoch > START:
-        #     print('Plasticity')
-        #     w2, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model, 'hl', epoch)
-        #     model.network.layer2_x.weight.data = w2.T
-        #     w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model, 'h2', epoch)
-        #     model.network.layer2_x.weight.data = w3.T
+        if epoch > START:
+            print('Plasticity')
+            w2, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model, 'hl', epoch)
+            model.network.layer2_x.weight.data = w2.T
+            w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model, 'h2', epoch)
+            model.network.layer2_x.weight.data = w3.T
             
         if epoch in args.when :
             lr *= 0.1
