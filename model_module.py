@@ -229,15 +229,15 @@ class SNN(nn.Module):
             tauM1 = self.act1m(self.layer1_tauM(torch.cat((dense_x, h[0]), dim = -1)))
             tauAdp1 = self.act1a(self.layer1_tauAdp(torch.cat((dense_x, h[2]), dim = -1)))        
             mem_1, spk_1, _, b_1 = mem_update_adp(dense_x, mem = h[0], spk = h[1], tau_adp = tauAdp1, tau_m = tauM1, b = h[2])
+            
             d1_drop = self.drop1(spk_1)
-
             dense_x2 = self.bn2a(self.layer2_x(d1_drop), i) + self.bn2b(self.layer2_r(h[1]), i)
             # dense_x2 = self.bn2a(self.layer2_x(spk_1), i) + self.bn2b(self.layer2_r(h[1]), i)
             tauM2 = self.act2m(self.layer2_tauM(torch.cat((dense_x2, h[3]), dim = -1)))
             tauAdp2 = self.act2a(self.layer2_tauAdp(torch.cat((dense_x2, h[5]), dim = -1)))  
             mem_2, spk_2, _, b_2 = mem_update_adp(dense_x2, mem = h[3], spk = h[4], tau_adp = tauAdp2, tau_m = tauM2, b = h[5])
-            d2_drop = self.drop2(spk_2)
             
+            d2_drop = self.drop2(spk_2)         
             dense3_x = self.bn2(self.layer3_x(d2_drop), i)
             # dense3_x = self.bn2(self.layer3_x(spk_2), i)
             tauM3 = self.act3(self.layer3_tauM(torch.cat((dense3_x, h[6]), dim = -1)))
@@ -248,10 +248,6 @@ class SNN(nn.Module):
                 mem_3)
 
             # h = (mem_1,spk_1,b_1,
-            #     mem_2,d2_drop,b_2, 
-            #     mem_3)
-
-            # h = (mem_1,d1_drop,b_1,
             #     mem_2,spk_2,b_2, 
             #     mem_3)
             
@@ -259,7 +255,8 @@ class SNN(nn.Module):
             outputs.append(f_output)
             hiddens.append(h)
 
-            self.fr = self.fr+ (spk_1.detach().cpu().numpy().mean()+spk_2.detach().cpu().numpy().mean())/2.
+            # self.fr = self.fr+ (spk_1.detach().cpu().numpy().mean()+spk_2.detach().cpu().numpy().mean())/2.
+            self.fr = self.fr + (d1_drop.detach().cpu().numpy().mean() + d2_drop.detach().cpu().numpy().mean()) / 2.
                 
         final_state = h
         self.fr = self.fr/T
