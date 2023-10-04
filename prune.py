@@ -9,6 +9,8 @@ def synaptic_constraint(curr_w, prev_w, T):
     INPUT: curr_w (Tensor), prev_w (Tensor), T (Tensor)
     OUTPUT: curr_w (Tensor), R_pos (Tensor), R_neg (Tensor)
     '''
+    E = 0.75                                        # Boundary Shrinking Factor
+    T = np.full(curr_w.shape, T)                    # Plasticity Threshold
     # Synaptic Boundaries
     max_val, max_ind = torch.max(abs(curr_w), dim=1)
     R_pos, R_neg = max_val.unsqueeze(1).expand(curr_w.shape), -max_val.unsqueeze(1).expand(curr_w.shape)
@@ -16,8 +18,6 @@ def synaptic_constraint(curr_w, prev_w, T):
     N_pos, N_neg, N = np.zeros(curr_w.shape), np.zeros(curr_w.shape), np.zeros(curr_w.shape)
     # Accumulated difference
     C_pos, C_neg =  np.zeros(curr_w.shape), np.zeros(curr_w.shape)
-    # Plasticity Threshold
-    T = np.full(curr_w.shape, T)
 
     # Constraining synapses and calculating synaptic activity
     for i in range(curr_w.shape[0]):
@@ -58,6 +58,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     prun_a, prun_b = 1, 0.00075                       # Pruning constants for updates
     reg_g = 1.1                                       # Regeneration constant for updates
     T_num = np.full(clw.shape, T)                     # Plasticity Threshold
+    MID = 60                                          # Pruning slows at this epoch
 
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
