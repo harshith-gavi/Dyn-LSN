@@ -317,10 +317,12 @@ for epoch in range(1, epochs + 1):
         curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3, T)
 
         if epoch > START:
-            model.network.layer1_x.weight.data.T, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model, 'hl', epoch)
+            w2, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w2, R2_pos, R2_neg, prun_rate2, reg_rate2, T, model, 'hl', epoch)
+            model.network.layer2_x.weight.data = w2.T
             print('After Plasticity: ', model.network.layer1_x.weight.data.T)
-            model.network.layer2_x.weight.data.T, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model, 'h2', epoch)
-        
+            w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model, 'h2', epoch)
+            model.network.layer2_x.weight.data = w3.T
+            
         if epoch in args.when :
             lr *= 0.1
             for param_group in optimizer.param_groups:
