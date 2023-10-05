@@ -168,7 +168,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                             n_filled += 1
 
             if p%k==0 or p==p_range[-1]:
-                optimizer.zero_grad()
+                # optimizer.zero_grad()
                 
                 # nll_loss = 0.9*F.nll_loss(output, target,reduction='none')-0.1*output.mean(dim=-1)
                 nll_loss = F.nll_loss(output, target,reduction='none')
@@ -194,7 +194,6 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 total_oracle_loss += oracle_loss.item()
 
         progress_bar.update(1)
-    return model
 
 parser = argparse.ArgumentParser()
 
@@ -281,7 +280,7 @@ for epoch in range(1, epochs + 1):
         k = 1
         prev_w2 = model.network.layer1_x.weight.data.T
         prev_w3 = model.network.layer2_x.weight.data.T
-        model = train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
+        train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
         progress_bar.close()
 
         reset_named_params(named_params, args)
