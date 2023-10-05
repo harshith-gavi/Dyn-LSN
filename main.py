@@ -260,7 +260,7 @@ epochs = args.epochs
 prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
 T = args.t_num
-START = 10                                       # Pruning starts at this epoch
+START = 20                                       # Pruning starts at this epoch
 first_update = False
 named_params = get_stats_named_params(model)
 
@@ -322,10 +322,10 @@ for epoch in range(1, epochs + 1):
             w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w3, R3_pos, R3_neg, prun_rate3, reg_rate3, T, model, 'h2', epoch)
             model.network.layer2_x.weight.data = w3.T
             
-        if epoch in args.when :
-            lr *= 0.1
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = lr
+        # if epoch in args.when :
+        #     lr *= 0.1
+        #     for param_group in optimizer.param_groups:
+        #         param_group['lr'] = lr
 
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
