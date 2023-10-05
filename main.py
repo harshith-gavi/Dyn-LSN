@@ -260,7 +260,7 @@ epochs = args.epochs
 prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
 T = args.t_num
-START = 36                                       # Pruning starts at this epoch
+START = 10                                       # Pruning starts at this epoch
 first_update = False
 named_params = get_stats_named_params(model)
 
