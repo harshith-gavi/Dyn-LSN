@@ -57,7 +57,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     prun_a, prun_b = 1, 0.00075                       # Pruning constants for updates
     reg_g = 1.1                                       # Regeneration constant for updates
     T_num = np.full(clw.shape, T)                     # Plasticity Threshold
-    START, MID = 36, 60                                # Pruning starts and slows at these epoch
+    START, MID = 10, 60                                # Pruning starts and slows at these epoch
 
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
