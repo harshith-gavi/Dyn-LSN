@@ -276,18 +276,22 @@ if optimizer is None:
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
-        k = 1
+        
+        # Previous Epoch Weights
         prev_w2 = model.network.layer1_x.weight.data.T
         prev_w3 = model.network.layer2_x.weight.data.T
-        print(prev_w2[:10])
-        train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
+
+        # Training
+        train(epoch, args, train_loader, n_classes, model, named_params, k = 1, progress_bar)  
         progress_bar.close()
+        
+        # Current Epoch Weights
         curr_w2 = model.network.layer1_x.weight.data.T
         curr_w3 = model.network.layer2_x.weight.data.T
-        print(curr_w2[:10])
 
         reset_named_params(named_params, args)
 
+        # Evaluation
         train_loss, train_acc = test(model, train_loader)
         all_train_losses.append(train_loss)
         all_train_acc.append(train_acc)
@@ -310,9 +314,9 @@ for epoch in range(1, epochs + 1):
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
 
-        temp = curr_w2
+        print(curr_w2[:5])
         curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2, T)
-        if torch.equal(curr_w2, temp): print('syn_con say whatt?')
+        print(curr_w2[:5])
         curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3, T)
 
         if epoch > START:
