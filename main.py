@@ -282,7 +282,7 @@ for epoch in range(1, epochs + 1):
         prev_w3 = model.network.layer2_x.weight.data.T
 
         # Training
-        train(epoch, args, train_loader, n_classes, model, named_params, k = 1, progress_bar)  
+        train(epoch, args, train_loader, n_classes, model, named_params, progress_bar, k = 1)  
         progress_bar.close()
         
         # Current Epoch Weights
