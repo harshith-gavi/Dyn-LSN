@@ -39,6 +39,9 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
             if N[i][j] > T[i, j]:
                 R_pos[i][j], R_neg[i][j] = E * R_pos[i][j], E * R_neg[i][j]
 
+    print(torch.sum(N_pos))
+    print(torch.sum(N_neg))
+
     return curr_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N
 
 def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epoch):
