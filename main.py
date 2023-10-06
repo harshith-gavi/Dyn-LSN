@@ -97,7 +97,7 @@ def test(model, test_loader):
     return test_loss, 100. * correct / (len(test_loader) * data.shape[0])
 
 
-def train(epoch, args, train_loader, n_classes, model, named_params, k = 1, progress_bar):
+def train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar):
     global estimate_class_distribution
 
     batch_size = args.batch_size
@@ -282,7 +282,7 @@ for epoch in range(1, epochs + 1):
         prev_w3 = model.network.layer2_x.weight.data.T
 
         # Training
-        train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
+        train(epoch, args, train_loader, n_classes, model, named_params, 1, progress_bar)  
         progress_bar.close()
         
         # Current Epoch Weights
