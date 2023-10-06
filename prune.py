@@ -109,4 +109,13 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
 
+    if layer == 'h2':
+        ldim = torch.all(clw != 0, dim=0)
+        ldim = ldim.sum().item()
+        print('NUmber of neurons in Layer 2: ', ldim)
+    elif layer == 'h3':
+        ldim = torch.all(clw != 0, dim=0)
+        ldim = ldim.sum().item()       
+        print('Number of neurons in Layer 3: ', ldim)
+
     return clw, prun_rate, reg_rate
