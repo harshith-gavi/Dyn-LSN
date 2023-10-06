@@ -273,8 +273,29 @@ if optimizer is None:
     if args.optim == 'AdamW':
         optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.2)
 
+# Initialised Weights
+curr_w2 = model.network.layer1_x.weight.data.T
+curr_w3 = model.network.layer2_x.weight.data.T
+
+# Initialisation of Synaptic Constraint parameters
+# Synaptic Boundaries
+max_val, max_ind = torch.max(abs(curr_w2), dim=1)
+R_pos_2, R_neg_2 = max_val.unsqueeze(1).expand(curr_w2.shape), -max_val.unsqueeze(1).expand(curr_w2.shape)
+max_val, max_ind = torch.max(abs(curr_w3), dim=1)
+R_pos_3, R_neg_3 = max_val.unsqueeze(1).expand(curr_w3.shape), -max_val.unsqueeze(1).expand(curr_w3.shape)
+# Consecutive Time
+N_pos_2, N_neg_2, N2 = np.zeros(curr_w2.shape), np.zeros(curr_w2.shape), np.zeros(curr_w2.shape)
+N_pos_3, N_neg_3, N3 = np.zeros(curr_w3.shape), np.zeros(curr_w3.shape), np.zeros(curr_w3.shape)
+# Accumulated difference
+C_pos_2, C_neg_2 =  np.zeros(curr_w2.shape), np.zeros(curr_w2.shape)
+C_pos_3, C_neg_3 =  np.zeros(curr_w3.shape), np.zeros(curr_w3.shape)
+
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:
+        # Current Epoch Weights
+        curr_w2 = model.network.layer1_x.weight.data.T
+        curr_w3 = model.network.layer2_x.weight.data.T
+        
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
         
         # Previous Epoch Weights
@@ -285,10 +306,6 @@ for epoch in range(1, epochs + 1):
         train(epoch, args, train_loader, n_classes, model, named_params, 1, progress_bar)  
         progress_bar.close()
         
-        # Current Epoch Weights
-        curr_w2 = model.network.layer1_x.weight.data.T
-        curr_w3 = model.network.layer2_x.weight.data.T
-
         reset_named_params(named_params, args)
 
         # Evaluation
@@ -314,10 +331,8 @@ for epoch in range(1, epochs + 1):
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
 
-        print(curr_w2[:5])
-        curr_w2, R2_pos, R2_neg = synaptic_constraint(curr_w2, prev_w2, T)
-        print(curr_w2[:5])
-        curr_w3, R3_pos, R3_neg = synaptic_constraint(curr_w3, prev_w3, T)
+        curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
+        curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
 
         if epoch > START:
             print('Plasticity')
