@@ -18,7 +18,9 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
             if curr_w[i][j] > R_pos[i][j]:
                 N_pos[i][j] += 1
                 C_pos[i][j] += curr_w[i][j] - R_pos[i][j]
+                print('changing weight: ', curr_w[i][j])
                 curr_w[i][j] = R_pos[i][j]
+                print('new weight: ', curr_w[i][j])
             else:
                 N_pos[i][j], C_pos[i][j] = 0, 0
 
@@ -39,9 +41,6 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
                 R_neg[i][j] -= C_neg[i][j] / T[i, j]
             if N[i][j] > T[i, j]:
                 R_pos[i][j], R_neg[i][j] = E * R_pos[i][j], E * R_neg[i][j]
-
-    print(np.sum(N_pos))
-    print(np.sum(N_neg))
 
     return curr_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N
 
