@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+import numpy as np
 
 def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N, T):
     '''
@@ -39,8 +40,8 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
             if N[i][j] > T[i, j]:
                 R_pos[i][j], R_neg[i][j] = E * R_pos[i][j], E * R_neg[i][j]
 
-    print(torch.sum(N_pos))
-    print(torch.sum(N_neg))
+    print(np.sum(N_pos))
+    print(np.sum(N_neg))
 
     return curr_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N
 
