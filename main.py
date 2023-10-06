@@ -279,12 +279,12 @@ for epoch in range(1, epochs + 1):
         k = 1
         prev_w2 = model.network.layer1_x.weight.data.T
         prev_w3 = model.network.layer2_x.weight.data.T
-        print(prev_w2)
+        print(prev_w2[:10])
         train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar)  
         progress_bar.close()
         curr_w2 = model.network.layer1_x.weight.data.T
         curr_w3 = model.network.layer2_x.weight.data.T
-        print(curr_w2)
+        print(curr_w2[:10])
 
         reset_named_params(named_params, args)
 
