@@ -110,6 +110,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             reg_rate += np.power(reg_g, epoch - START)
 
     if layer == 'h1':
+        print(clw)
         ldim = torch.sum(clw, dim=0)
         print(ldim)
         ldim = torch.count_nonzero(ldim)
