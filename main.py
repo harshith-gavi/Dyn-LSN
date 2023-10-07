@@ -291,11 +291,7 @@ C_pos_2, C_neg_2 =  np.zeros(curr_w2.shape), np.zeros(curr_w2.shape)
 C_pos_3, C_neg_3 =  np.zeros(curr_w3.shape), np.zeros(curr_w3.shape)
 
 for epoch in range(1, epochs + 1):  
-    if args.dataset in ['SHD']:
-        # Current Epoch Weights
-        curr_w2 = model.network.layer1_x.weight.data.T
-        curr_w3 = model.network.layer2_x.weight.data.T
-        
+    if args.dataset in ['SHD']:        
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
         
         # Previous Epoch Weights
@@ -305,6 +301,10 @@ for epoch in range(1, epochs + 1):
         # Training
         train(epoch, args, train_loader, n_classes, model, named_params, 1, progress_bar)  
         progress_bar.close()
+
+        # Current Epoch Weights
+        curr_w2 = model.network.layer1_x.weight.data.T
+        curr_w3 = model.network.layer2_x.weight.data.T
         
         reset_named_params(named_params, args)
 
