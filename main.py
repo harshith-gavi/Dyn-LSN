@@ -338,7 +338,6 @@ for epoch in range(1, epochs + 1):
         curr_w4 = model.network.layer3_x.weight.data.T
 
         if epoch > START:
-            print('Plasticity')
             w2, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, model, 'h1', epoch)
             model.network.layer1_x.weight.data = w2.T
             w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, model, 'h2', epoch)
