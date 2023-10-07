@@ -74,6 +74,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
          no_neu = torch.all(nlw != 0, dim=0)
          N_nl = no_neu.sum().item()
     elif layer == 'h2':
+         print(clw)
          N_nl = 20
     print('Number of Neurons in {layer} Layer: ', N_nl)
 
