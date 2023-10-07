@@ -51,7 +51,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     prun_a, prun_b = 1, 0.00075                       # Pruning constants for updates
     reg_g = 1.1                                       # Regeneration constant for updates
     T_num = np.full(clw.shape, T)                     # Plasticity Threshold
-    START, MID = 5, 60                                # Pruning starts and slows at these epoch
+    START, MID = 3, 60                                # Pruning starts and slows at these epoch
 
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
@@ -110,8 +110,9 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             reg_rate += np.power(reg_g, epoch - START)
 
     if layer == 'h1':
-        print(clw.shape)
         ldim = torch.all(clw != 0.0, dim=0)
+        print(ldim)
+        print(ldim.shape)
         ldim = ldim.sum().item()
         print('Number of neurons in Layer 2: ', ldim)
     elif layer == 'h2':
