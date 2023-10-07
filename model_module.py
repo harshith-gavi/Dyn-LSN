@@ -255,8 +255,8 @@ class SNN(nn.Module):
             outputs.append(f_output)
             hiddens.append(h)
 
-            # self.fr = self.fr+ (spk_1.detach().cpu().numpy().mean()+spk_2.detach().cpu().numpy().mean())/2.
-            self.fr = self.fr + (d1_drop.detach().cpu().numpy().mean() + d2_drop.detach().cpu().numpy().mean()) / 2.
+            self.fr = self.fr+ (spk_1.detach().cpu().numpy().mean()+spk_2.detach().cpu().numpy().mean())/2.
+            # self.fr = self.fr + (d1_drop.detach().cpu().numpy().mean() + d2_drop.detach().cpu().numpy().mean()) / 2.
                 
         final_state = h
         self.fr = self.fr/T
