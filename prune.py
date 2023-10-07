@@ -110,10 +110,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             reg_rate += np.power(reg_g, epoch - START)
 
     if layer == 'h1':
-        ldim = torch.all(clw == 0.0, dim=0)
-        print(ldim)
-        ldim = 256 - ldim.sum().item()
-        print(ldim)
+        ldim = torch.sum(clw, dim=0)
+        ldim = torch.count_nonzero(ldim)
         print('Number of neurons in Layer 2: ', ldim)
     elif layer == 'h2':
         ldim = torch.all(clw != 0.0, dim=0)
