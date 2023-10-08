@@ -56,11 +56,10 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
     D = torch.sum(R_range, dim=0)                     # Activity Level
-
+    print(D)
     # Pruning neurons based on D
     no_prun_neu = round(256 * prun_rate)
-    # indices = torch.argsort(D, dim=0)[:no_prun_neu]
-    indices = torch.argsort(D, dim=0)
+    indices = torch.argsort(D, dim=0)[:no_prun_neu]
     print(indices)
     for i in indices:
         clw[:, i] = 0
