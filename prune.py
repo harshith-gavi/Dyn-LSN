@@ -78,6 +78,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
          N_nl = 20
 
     prun_rate += (d * N_cl/N_nl)
+    print('New prun rate:', prun_rate)
 
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
