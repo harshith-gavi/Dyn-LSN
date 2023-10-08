@@ -62,7 +62,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     indices = torch.argsort(D, dim=0)[:no_prun_neu]
     for i in indices:
         clw[:, i] = 0
-
+    print(str(no_prun_neu) + ' neurons pruned')
+    
     # Updating pruning rate
     if epoch <= MID:    d = prun_a * np.exp(-(epoch - START))
     else:               d = prun_b
@@ -105,9 +106,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             # Regenerating synapases
             r = topk_indices // T_g.shape[1]
             c = topk_indices % T_g.shape[1]
+
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
                     clw[i, j] = clw[i, j] - (model.l_r * dL[i, j])
+                    
+            print(str(len(r)) + ' synapses regenerated')
 
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
