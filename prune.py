@@ -82,6 +82,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
         if ('weight' in name) and param.requires_grad:
+            print(name)
             dL = param.grad
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
