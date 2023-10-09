@@ -113,10 +113,11 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
                 if T_g[i, j] > T_num[i, j]:
                     clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
     
-            print('Number of synapses regenerated in {0} Layer: '.format(layer), N_cl)
+            print('Number of synapses regenerated in {0} Layer: '.format(layer), len(r))
         
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
+            
         elif (layer == 'h2') and ('2_x.weight' in name) and param.requires_grad:
             print('Regenerating synapses for ' + layer + ' layer')
             dL = param.grad
@@ -146,7 +147,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
                 if T_g[i, j] > T_num[i, j]:
                     clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
     
-            print('Number of synapses regenerated in {0} Layer: '.format(layer), N_cl)
+            print('Number of synapses regenerated in {0} Layer: '.format(layer), len(r))
         
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
