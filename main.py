@@ -260,7 +260,7 @@ epochs = args.epochs
 prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
 T = args.t_num
-START = 10                                       # Pruning starts at this epoch
+START = 3                                       # Pruning starts at this epoch
 first_update = False
 named_params = get_stats_named_params(model)
 
@@ -331,9 +331,9 @@ for epoch in range(1, epochs + 1):
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
 
-        # print(curr_w2[:6])
+        print(curr_w2[:6])
         curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
-        # print(curr_w2[:6])
+        print(curr_w2[:6])
         curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
         curr_w4 = model.network.layer3_x.weight.data.T
 
@@ -343,10 +343,10 @@ for epoch in range(1, epochs + 1):
             curr_w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, model, 'h2', epoch)
             model.network.layer2_x.weight.data = curr_w3.T
             
-        # if epoch in args.when :
-        #     lr *= 0.1
-        #     for param_group in optimizer.param_groups:
-        #         param_group['lr'] = lr
+        if epoch in args.when :
+            lr *= 0.1
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = lr
 
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
