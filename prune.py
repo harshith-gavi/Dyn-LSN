@@ -82,7 +82,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
         if ('x.weight' in name) and param.requires_grad:
-            print(name)
+            print(param)
             dL = param.grad
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
@@ -97,7 +97,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
 
             # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
             no_syn = torch.count_nonzero(T_g).item()
-            print(no_syn)
             if no_syn > no_syn_reg:
                 topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn_reg)
             else:
