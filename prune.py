@@ -117,7 +117,9 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     
         for i, j in zip(r, c):
             if T_g[i, j] > T_num[i, j]:
-                clw[i, j] = clw[i, j] - (model.l_r * dL[i, j])
+                clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
+
+        print('Number of synapses regenerated in {0} Layer: '.format(layer), N_cl)
     
         # Updating regeneration rate
         reg_rate += np.power(reg_g, epoch - START)
