@@ -90,6 +90,33 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
             T_g = torch.zeros(dL.shape)
+
+            # Regeneration update
+            for i in range(T_g.shape[0]):
+                for j in range(T_g.shape[1]):
+                    if j in indices:
+                        T_g[i, j] += 1
+                    else: T_g[i, j] = 0
+        
+            # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
+            no_syn = torch.count_nonzero(T_g).item()
+            if no_syn > no_syn_reg:
+                topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn_reg)
+            else:
+                topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn)
+        
+            # Regenerating synapases
+            r = topk_indices // T_g.shape[1]
+            c = topk_indices % T_g.shape[1]
+        
+            for i, j in zip(r, c):
+                if T_g[i, j] > T_num[i, j]:
+                    clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
+    
+            print('Number of synapses regenerated in {0} Layer: '.format(layer), N_cl)
+        
+            # Updating regeneration rate
+            reg_rate += np.power(reg_g, epoch - START)
         elif (layer == 'h2') and ('2_x.weight' in name) and param.requires_grad:
             print('Regenerating synapses for ' + layer + ' layer')
             dL = param.grad
@@ -97,31 +124,31 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
             T_g = torch.zeros(dL.shape)
             
-        # Regeneration update
-        for i in range(T_g.shape[0]):
-            for j in range(T_g.shape[1]):
-                if j in indices:
-                    T_g[i, j] += 1
-                else: T_g[i, j] = 0
+            # Regeneration update
+            for i in range(T_g.shape[0]):
+                for j in range(T_g.shape[1]):
+                    if j in indices:
+                        T_g[i, j] += 1
+                    else: T_g[i, j] = 0
+        
+            # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
+            no_syn = torch.count_nonzero(T_g).item()
+            if no_syn > no_syn_reg:
+                topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn_reg)
+            else:
+                topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn)
+        
+            # Regenerating synapases
+            r = topk_indices // T_g.shape[1]
+            c = topk_indices % T_g.shape[1]
+        
+            for i, j in zip(r, c):
+                if T_g[i, j] > T_num[i, j]:
+                    clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
     
-        # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
-        no_syn = torch.count_nonzero(T_g).item()
-        if no_syn > no_syn_reg:
-            topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn_reg)
-        else:
-            topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn)
-    
-        # Regenerating synapases
-        r = topk_indices // T_g.shape[1]
-        c = topk_indices % T_g.shape[1]
-    
-        for i, j in zip(r, c):
-            if T_g[i, j] > T_num[i, j]:
-                clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
-
-        print('Number of synapses regenerated in {0} Layer: '.format(layer), N_cl)
-    
-        # Updating regeneration rate
-        reg_rate += np.power(reg_g, epoch - START)
+            print('Number of synapses regenerated in {0} Layer: '.format(layer), N_cl)
+        
+            # Updating regeneration rate
+            reg_rate += np.power(reg_g, epoch - START)
 
     return clw, prun_rate, reg_rate
