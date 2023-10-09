@@ -51,7 +51,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     prun_a, prun_b = 1, 0.00075                       # Pruning constants for updates
     reg_g = 1.1                                       # Regeneration constant for updates
     T_num = np.full(clw.shape, T)                     # Plasticity Threshold
-    START, MID = 20, 60                                # Pruning starts and slows at these epoch
+    START, MID = 3, 10                                # Pruning starts and slows at these epoch
 
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
@@ -96,6 +96,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
 
             # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
             no_syn = torch.count_nonzero(T_g).item()
+            print(no_syn)
             if no_syn > no_syn_reg:
                 topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn_reg)
             else:
