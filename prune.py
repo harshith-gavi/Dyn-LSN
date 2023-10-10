@@ -51,26 +51,27 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     prun_a, prun_b = 1, 0.00075                       # Pruning constants for updates
     reg_g = 1.1                                       # Regeneration constant for updates
     T_num = np.full(clw.shape, T)                     # Plasticity Threshold
-    START, MID = 20, 40                                # Pruning starts and slows at these epoch
+    START, MID = 20, 50                                # Pruning starts and slows at these epoch
 
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
     D = torch.sum(R_range, dim=0)                     # Activity Level
     
     # Pruning neurons based on D
-    print('Pruning neruons for ' + layer + ' layer')
     no_prun_neu = round(256 * prun_rate)
     indices = torch.argsort(D, dim=0)[:no_prun_neu]
+    no_syn_prun = torch.count_nonzero(clw).item()
     for i in indices:
         clw[:, i] = 0
 
     # Updating pruning rate
     if epoch <= MID:    d = prun_a * np.exp(-(epoch - START))
     else:               d = prun_b
-
+        
+    no_syn_prun -= torch.count_nonzero(clw).item()
+    print('Number of connections pruned in {0} Layer: '.format(layer), no_syn_prun)
     no_neu = torch.all(clw != 0, dim=0)
     N_cl = no_neu.sum().item()
-    print('Number of Neurons in {0} Layer: '.format(layer), N_cl)
     if layer == 'h1':
          no_neu = torch.all(nlw != 0, dim=0)
          N_nl = no_neu.sum().item()
@@ -85,7 +86,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     for name, param in model.named_parameters():
         # if ('x.weight' in name) and param.requires_grad:
         if (layer == 'h1') and ('1_x.weight' in name) and param.requires_grad:
-            print('Regenerating synapses for ' + layer + ' layer')
             dL = param.grad
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
@@ -112,8 +112,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
                     clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
-    
-            print('Number of synapses regenerated in {0} Layer: '.format(layer), len(r))
         
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
@@ -146,10 +144,11 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
                     clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
-    
-            print('Number of synapses regenerated in {0} Layer: '.format(layer), len(r))
         
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
+
+    no_syns = torch.count_nonzero(clw).item()
+    print('Number of connections after regeneration in {0} Layer'.format(0), no_syns)
 
     return clw, prun_rate, reg_rate
