@@ -331,9 +331,7 @@ for epoch in range(1, epochs + 1):
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
 
-        temp = curr_w2
         curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
-        if torch.equal(temp, curr_w2): print('Sayy whatt')
         curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
         curr_w4 = model.network.layer3_x.weight.data.T
 
