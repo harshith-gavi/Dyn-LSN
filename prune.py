@@ -112,12 +112,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
                     clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
+            print('Number of connections regenerated in {0} Layer: '.format(layer), len(r))
         
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
             
         elif (layer == 'h2') and ('2_x.weight' in name) and param.requires_grad:
-            print('Regenerating synapses for ' + layer + ' layer')
             dL = param.grad
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
@@ -144,11 +144,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
                     clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
+            print('Number of connections regenerated in {0} Layer: '.format(layer), len(r))
         
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
 
     no_syns = torch.count_nonzero(clw).item()
-    print('Number of connections after regeneration in {0} Layer'.format(0), no_syns)
+    print('Total connections in {0} Layer'.format(layer), no_syns)
 
     return clw, prun_rate, reg_rate
