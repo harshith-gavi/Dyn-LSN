@@ -150,6 +150,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
             reg_rate += np.power(reg_g, epoch - START)
 
     no_syns = torch.count_nonzero(clw).item()
-    print('Total connections in {0} Layer'.format(layer), no_syns)
+    print('Total connections in {0} Layer: '.format(layer), no_syns)
 
     return clw, prun_rate, reg_rate
