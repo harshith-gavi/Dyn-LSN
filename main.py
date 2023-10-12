@@ -331,15 +331,15 @@ for epoch in range(1, epochs + 1):
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
 
-        curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
-        curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
-        curr_w4 = model.network.layer3_x.weight.data.T
+        # curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
+        # curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
+        # curr_w4 = model.network.layer3_x.weight.data.T
 
-        if epoch > START:
-            curr_w2, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, model, 'h1', epoch)
-            model.network.layer1_x.weight.data = curr_w2.T
-            curr_w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, model, 'h2', epoch)
-            model.network.layer2_x.weight.data = curr_w3.T
+        # if epoch > START:
+        #     curr_w2, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, model, 'h1', epoch)
+        #     model.network.layer1_x.weight.data = curr_w2.T
+        #     curr_w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, model, 'h2', epoch)
+        #     model.network.layer2_x.weight.data = curr_w3.T
             
         if epoch in args.when :
             lr *= 0.1
