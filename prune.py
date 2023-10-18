@@ -60,7 +60,9 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     # Pruning neurons based on D
     no_prun_neu = round(256 * prun_rate)
     indices = torch.argsort(D, dim=0)[:no_prun_neu]
-    no_syn_prun = torch.count_nonzero(clw).item()
+    print('Number of neurons pruned in {0} Layer:'.format(layer), no_prun_neu)
+    print('Number of connections pruned in {0} Layer: '.format(layer), no_prun_neu * clw.shape[0])
+    # no_syn_prun = torch.count_nonzero(clw).item()
     for i in indices:
         clw[:, i] = 0
 
@@ -68,8 +70,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     if epoch <= MID:    d = prun_a * np.exp(-(epoch - START))
     else:               d = prun_b
         
-    no_syn_prun -= torch.count_nonzero(clw).item()
-    print('Number of connections pruned in {0} Layer: '.format(layer), no_syn_prun)
+    # no_syn_prun -= torch.count_nonzero(clw).item()
+    # print('Number of connections pruned in {0} Layer: '.format(layer), no_syn_prun)
     no_neu = torch.all(clw != 0, dim=0)
     N_cl = no_neu.sum().item()
     if layer == 'h1':
