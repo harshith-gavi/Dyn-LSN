@@ -60,6 +60,9 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     # Pruning neurons based on D
     if layer == 'h2':
         no_prun_neu = round(N_n[0] * prun_rate)
+        print(N_n[0])
+        print(prun_rate)
+        print(no_prun_neu)
     else:
         no_prun_neu = round(N_n[1] * prun_rate)
     indices = torch.argsort(D, dim=0)[:no_prun_neu]
