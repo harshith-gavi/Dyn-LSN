@@ -74,12 +74,13 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     # print('Number of connections pruned in {0} Layer: '.format(layer), no_syn_prun)
     no_neu = torch.all(clw != 0, dim=0)
     N_cl = no_neu.sum().item()
+    print(N_cl)
     if layer == 'h1':
          no_neu = torch.all(nlw != 0, dim=0)
          N_nl = no_neu.sum().item()
     elif layer == 'h2':
          N_nl = 20
-
+    print(N_nl)
     prun_rate += (d * N_cl/N_nl)
     if prun_rate > 1:
          prun_rate *= 0.1
