@@ -291,7 +291,7 @@ N_pos_3, N_neg_3, N3 = np.zeros(curr_w3.shape), np.zeros(curr_w3.shape), np.zero
 C_pos_2, C_neg_2 = np.zeros(curr_w2.shape), np.zeros(curr_w2.shape)
 C_pos_3, C_neg_3 = np.zeros(curr_w3.shape), np.zeros(curr_w3.shape)
 # Regeneration Count
-Tg2, Tg3 = np.zeros(curr_w2.shape), np.zeros(curr_w3.shape)
+Tg2, Tg3 = torch.zeros(curr_w2.shape), torch.zeros(curr_w3.shape)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:        
