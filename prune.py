@@ -59,11 +59,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     
     # Pruning neurons based on D
     no_prun_neu = round(256 * prun_rate)
-    sorted_values, indices = torch.sort(D, dim=0)
-    mask = torch.zeros_like(D, dtype=torch.bool)
-    mask[indices[:no_prun_neu]] = True
-    indices = torch.nonzero(mask).squeeze()
-    print(indices)
+    indices = torch.argsort(D, dim=0)[:no_prun_neu]
     print('Number of neurons pruned in {0} Layer:'.format(layer), no_prun_neu)
     print('Number of connections pruned in {0} Layer: '.format(layer), no_prun_neu * clw.shape[0])
     # no_syn_prun = torch.count_nonzero(clw).item()
@@ -105,11 +101,19 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
 
             # Regeneration update
+            # for i in range(T_g.shape[0]):
+            #     for j in range(T_g.shape[1]):
+            #         if j in indices:
+            #             T_g[i, j] += 1
+            #         else: T_g[i, j] = 0
+
+            # Regenration update
             for i in range(T_g.shape[0]):
                 for j in range(T_g.shape[1]):
-                    if j in indices:
+                    if clw[i, j] == 0:
                         T_g[i, j] += 1
-                    else: T_g[i, j] = 0
+                    else:
+                        T_g[i, j] = 0
         
             # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
             no_syn = torch.count_nonzero(T_g).item()
@@ -119,6 +123,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
                 topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn)
         
             # Regenerating synapases
+            print(topk_indices)
             r = topk_indices // T_g.shape[1]
             c = topk_indices % T_g.shape[1]
         
