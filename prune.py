@@ -42,7 +42,7 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
 
     return curr_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N
 
-def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, N_n, epoch):
+def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer, N_n, epoch):
     '''
     Function that prunes and generates the connections between the presynaptic and postsynaptic neurons, given the current and next layer weights, synaptic boundaries, pruning rate, regeneration rate, and plasticity threshold 
     INPUT: clw (Tensor), plw (Tensor), R_pos (Tensor), R_neg (Tensor), prun_rate (float), reg_rate (float), T (int), model (nn.module), layer (string)
@@ -51,7 +51,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, N_n
     prun_a, prun_b = 1, 0.00075                       # Pruning constants for updates
     reg_g = 1.1                                       # Regeneration constant for updates
     T_num = np.full(clw.shape, T)                     # Plasticity Threshold
-    START, MID = 3, 50                                # Pruning starts and slows at these epoch
+    START, MID = 20, 50                                # Pruning starts and slows at these epoch
 
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
@@ -83,10 +83,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, N_n
          N_nl = 20
     
     prun_rate += (d * N_cl/N_nl)
-    print(prun_rate)
     if prun_rate > 1:
          prun_rate *= 0.1
-         print(prun_rate)
 
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
@@ -95,7 +93,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, N_n
             dL = param.grad
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
-            T_g = torch.zeros(dL.shape)
 
             # Regeneration update
             for i in range(T_g.shape[0]):
@@ -158,4 +155,4 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, N_n
     no_syns = torch.count_nonzero(clw).item()
     print('Total connections in {0} Layer: '.format(layer), no_syns)
 
-    return clw, prun_rate, reg_rate, N_n
+    return clw, prun_rate, reg_rate, T_g, N_n
