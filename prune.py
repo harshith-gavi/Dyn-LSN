@@ -72,15 +72,19 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
         
     # no_syn_prun -= torch.count_nonzero(clw).item()
     # print('Number of connections pruned in {0} Layer: '.format(layer), no_syn_prun)
-    no_neu = torch.all(clw != 0, dim=0)
-    N_cl = no_neu.sum().item()
-    print(N_cl)
+
     if layer == 'h1':
-         no_neu = torch.all(nlw != 0, dim=0)
-         N_nl = no_neu.sum().item()
+         N_n[0] = N_n[0] - no_prun_neu
+         N_cl = N_n[0]
+         N_nl = N_n[1]
     elif layer == 'h2':
+         N_n[1] = N_n[1] - no_prun_neu
+         N_cl = N_n[1]
          N_nl = 20
+    
+    print(N_cl)
     print(N_nl)
+    
     prun_rate += (d * N_cl/N_nl)
     if prun_rate > 1:
          prun_rate *= 0.1
@@ -155,4 +159,4 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, model, layer, epo
     no_syns = torch.count_nonzero(clw).item()
     print('Total connections in {0} Layer: '.format(layer), no_syns)
 
-    return clw, prun_rate, reg_rate
+    return clw, prun_rate, reg_rate, N_n
