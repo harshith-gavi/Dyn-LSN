@@ -89,12 +89,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     if prun_rate > 1:
          prun_rate *= 0.1
 
-    print(no_prun_neu)
-    print(N_cl)
-    print(N_nl)
-    print(d)
-    print(prun_rate)
-
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
         # if ('x.weight' in name) and param.requires_grad:
@@ -126,12 +120,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
                 topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn)
         
             # Regenerating synapases
-            print(topk_indices)
             r = topk_indices // T_g.shape[1]
             c = topk_indices % T_g.shape[1]
         
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
+                    print('l_r: ', model.network.l_r)
                     clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
             print('Number of connections regenerated in {0} Layer: '.format(layer), len(r))
         
