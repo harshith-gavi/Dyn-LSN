@@ -261,6 +261,7 @@ prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
 T = args.t_num
 START = 3                                       # Pruning starts at this epoch
+N_n = [256, 256]                            # Number of neurons in all layers
 first_update = False
 named_params = get_stats_named_params(model)
 
@@ -336,9 +337,9 @@ for epoch in range(1, epochs + 1):
         curr_w4 = model.network.layer3_x.weight.data.T
 
         if epoch > START:
-            curr_w2, prun_rate2, reg_rate2 = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, model, 'h1', epoch)
+            curr_w2, prun_rate2, reg_rate2, N_n = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, model, 'h1', N_n, epoch)
             model.network.layer1_x.weight.data = curr_w2.T
-            curr_w3, prun_rate3, reg_rate3 = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, model, 'h2', epoch)
+            curr_w3, prun_rate3, reg_rate3, N_n = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, model, 'h2', N_n, epoch)
             model.network.layer2_x.weight.data = curr_w3.T
             
         if epoch in args.when :
