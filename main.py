@@ -288,8 +288,10 @@ R_pos_3, R_neg_3 = max_val.unsqueeze(1).expand(curr_w3.shape), -max_val.unsqueez
 N_pos_2, N_neg_2, N2 = np.zeros(curr_w2.shape), np.zeros(curr_w2.shape), np.zeros(curr_w2.shape)
 N_pos_3, N_neg_3, N3 = np.zeros(curr_w3.shape), np.zeros(curr_w3.shape), np.zeros(curr_w3.shape)
 # Accumulated difference
-C_pos_2, C_neg_2 =  np.zeros(curr_w2.shape), np.zeros(curr_w2.shape)
-C_pos_3, C_neg_3 =  np.zeros(curr_w3.shape), np.zeros(curr_w3.shape)
+C_pos_2, C_neg_2 = np.zeros(curr_w2.shape), np.zeros(curr_w2.shape)
+C_pos_3, C_neg_3 = np.zeros(curr_w3.shape), np.zeros(curr_w3.shape)
+# Regeneration Count
+Tg2, Tg3 = np.zeros(curr_w2.shape), np.zeros(curr_w3.shape)
 
 for epoch in range(1, epochs + 1):  
     if args.dataset in ['SHD']:        
@@ -337,9 +339,9 @@ for epoch in range(1, epochs + 1):
         curr_w4 = model.network.layer3_x.weight.data.T
 
         if epoch > START:
-            curr_w2, prun_rate2, reg_rate2, N_n = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, model, 'h1', N_n, epoch)
+            curr_w2, prun_rate2, reg_rate2, T_g2, N_n = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, T_g2, model, 'h1', N_n, epoch)
             model.network.layer1_x.weight.data = curr_w2.T
-            curr_w3, prun_rate3, reg_rate3, N_n = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, model, 'h2', N_n, epoch)
+            curr_w3, prun_rate3, reg_rate3, T_g3, N_n = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, T_g3, model, 'h2', N_n, epoch)
             model.network.layer2_x.weight.data = curr_w3.T
             
         if epoch in args.when :
