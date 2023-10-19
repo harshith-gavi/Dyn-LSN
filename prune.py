@@ -83,6 +83,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
          N_nl = 20
     
     prun_rate += (d * N_cl/N_nl)
+    print(prun_rate)
     if prun_rate > 1:
          prun_rate *= 0.1
 
