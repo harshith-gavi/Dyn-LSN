@@ -138,11 +138,19 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             T_g = torch.zeros(dL.shape)
             
             # Regeneration update
+            # for i in range(T_g.shape[0]):
+            #     for j in range(T_g.shape[1]):
+            #         if j in indices:
+            #             T_g[i, j] += 1
+            #         else: T_g[i, j] = 0
+
+            # Regenration update
             for i in range(T_g.shape[0]):
                 for j in range(T_g.shape[1]):
-                    if j in indices:
+                    if clw[i, j] == 0:
                         T_g[i, j] += 1
-                    else: T_g[i, j] = 0
+                    else:
+                        T_g[i, j] = 0
         
             # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
             no_syn = torch.count_nonzero(T_g).item()
