@@ -42,7 +42,7 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
 
     return curr_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N
 
-def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer, N_n, epoch):
+def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer, N_n, lr, epoch):
     '''
     Function that prunes and generates the connections between the presynaptic and postsynaptic neurons, given the current and next layer weights, synaptic boundaries, pruning rate, regeneration rate, and plasticity threshold 
     INPUT: clw (Tensor), plw (Tensor), R_pos (Tensor), R_neg (Tensor), prun_rate (float), reg_rate (float), T (int), model (nn.module), layer (string)
@@ -125,8 +125,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
         
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
-                    print('l_r: ', model.network.l_r)
-                    clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
+                    clw[i, j] = clw[i, j] - (lr * dL[i, j])
             print('Number of connections regenerated in {0} Layer: '.format(layer), len(r))
         
             # Updating regeneration rate
@@ -158,7 +157,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
         
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
-                    clw[i, j] = clw[i, j] - (model.network.l_r * dL[i, j])
+                    clw[i, j] = clw[i, j] - (lr * dL[i, j])
             print('Number of connections regenerated in {0} Layer: '.format(layer), len(r))
         
             # Updating regeneration rate
