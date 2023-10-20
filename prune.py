@@ -75,11 +75,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     else:               d = prun_b
 
     if layer == 'h1':
-         N_n[0] = N_n[0] - no_prun_neu
+         N_n[0] = 256 - torch.sum(torch.all(clw == 0, dim=1)).item()
          N_cl = N_n[0]
          N_nl = N_n[1]
     elif layer == 'h2':
-         N_n[1] = N_n[1] - no_prun_neu
+         # N_n[1] = N_n[1] - no_prun_neu
+         N_n[1] = 256 - torch.sum(torch.all(clw == 0, dim=1)).item()
          N_cl = N_n[1]
          N_nl = 20
     
