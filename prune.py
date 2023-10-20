@@ -174,6 +174,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
 
+    print('Total number of neurons: ', N_n)
     no_syns = torch.count_nonzero(clw).item()
     print('Total connections in {0} Layer: '.format(layer), no_syns)
 
