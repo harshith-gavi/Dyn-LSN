@@ -122,11 +122,13 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             # Regenerating synapases
             r = topk_indices // T_g.shape[1]
             c = topk_indices % T_g.shape[1]
-        
+
+            reg_count = 0
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
+                    reg_count += 1
                     clw[i, j] = clw[i, j] - (lr * dL[i, j])
-            print('Number of connections regenerated in {0} Layer: '.format(layer), len(r))
+            print('Number of connections regenerated in {0} Layer: '.format(layer), reg_count)
         
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
@@ -163,10 +165,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             r = topk_indices // T_g.shape[1]
             c = topk_indices % T_g.shape[1]
         
+            reg_count = 0
             for i, j in zip(r, c):
                 if T_g[i, j] > T_num[i, j]:
+                    reg_count += 1
                     clw[i, j] = clw[i, j] - (lr * dL[i, j])
-            print('Number of connections regenerated in {0} Layer: '.format(layer), len(r))
+            print('Number of connections regenerated in {0} Layer: '.format(layer), reg_count)
         
             # Updating regeneration rate
             reg_rate += np.power(reg_g, epoch - START)
