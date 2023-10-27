@@ -335,20 +335,20 @@ for epoch in range(1, epochs + 1):
             # print('Test Loss:', test_loss, end = '\t')
             # print('Test Accuracy:', test_acc.item())
 
-        curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
-        curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
-        curr_w4 = model.network.layer3_x.weight.data.T
+        # curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
+        # curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
+        # curr_w4 = model.network.layer3_x.weight.data.T
 
-        if epoch > START:
-            curr_w2, prun_rate2, reg_rate2, T_g2, N_n, syns = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, Tg2, model, 'h1', N_n, lr, epoch)
-            syns_h1.append(syns)
-            model.network.layer1_x.weight.data = curr_w2.T
-            curr_w3, prun_rate3, reg_rate3, T_g3, N_n, syns = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, Tg3, model, 'h2', N_n, lr, epoch)
-            syns_h2.append(syns)
-            model.network.layer2_x.weight.data = curr_w3.T
-        else:
-            syns_h1.append((0, model.network.layer1_x.weight.data.shape[0] * model.network.layer1_x.weight.data.shape[1]))
-            syns_h2.append((0, model.network.layer2_x.weight.data.shape[0] * model.network.layer2_x.weight.data.shape[1]))
+        # if epoch > START:
+        #     curr_w2, prun_rate2, reg_rate2, T_g2, N_n, syns = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, Tg2, model, 'h1', N_n, lr, epoch)
+        #     syns_h1.append(syns)
+        #     model.network.layer1_x.weight.data = curr_w2.T
+        #     curr_w3, prun_rate3, reg_rate3, T_g3, N_n, syns = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, Tg3, model, 'h2', N_n, lr, epoch)
+        #     syns_h2.append(syns)
+        #     model.network.layer2_x.weight.data = curr_w3.T
+        # else:
+        #     syns_h1.append((0, model.network.layer1_x.weight.data.shape[0] * model.network.layer1_x.weight.data.shape[1]))
+        #     syns_h2.append((0, model.network.layer2_x.weight.data.shape[0] * model.network.layer2_x.weight.data.shape[1]))
 
         if epoch in args.when :
             lr *= 0.1
@@ -357,4 +357,4 @@ for epoch in range(1, epochs + 1):
 
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
-plot_conns(syns_h1, syns_h2, 'syns', args)
+# plot_conns(syns_h1, syns_h2, 'syns', args)
