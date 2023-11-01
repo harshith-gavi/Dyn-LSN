@@ -340,4 +340,4 @@ for epoch in range(1, epochs + 1):
 
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
-plot_conns(syns_h1, syns_h2, 'syns', args)
+plot_info(syns_h1, syns_h2, 'syns', args)
