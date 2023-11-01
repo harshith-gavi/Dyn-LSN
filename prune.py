@@ -68,7 +68,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
         clw[:, i] = 0
 
     no_prun_conn = torch.sum(clw == 0).item()
-    print('Number of connections pruned in {0} Layer: '.format(layer), no_prun_conn)
+    print('Total number of connections pruned in {0} Layer: '.format(layer), no_prun_conn)
 
     # Updating pruning rate
     if epoch <= MID:    d = prun_a * np.exp(-(epoch - START))
@@ -127,7 +127,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
                 if T_g[i, j] > T_num[i, j]:
                     reg_count += 1
                     clw[i, j] = clw[i, j] - (lr * dL[i, j])
-            print('Number of connections regenerated in {0} Layer: '.format(layer), reg_count)
+            print('Total number of connections regenerated in {0} Layer: '.format(layer), reg_count)
+            print('Total number of neurons: ', N_n[0])
         
             # # Updating regeneration rate
             # reg_rate += np.power(reg_g, epoch - START)
@@ -169,12 +170,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
                 if T_g[i, j] > T_num[i, j]:
                     reg_count += 1
                     clw[i, j] = clw[i, j] - (lr * dL[i, j])
-            print('Number of connections regenerated in {0} Layer: '.format(layer), reg_count)
+            print('Total number of connections regenerated in {0} Layer: '.format(layer), reg_count)
+            print('Total number of neurons: ', N_n[1])
         
     # Updating regeneration rate
     reg_rate += np.power(reg_g, epoch - START)
 
-    print('Total number of neurons: ', N_n)
     no_syns = torch.count_nonzero(clw).item()
     print('Total connections in {0} Layer: '.format(layer), no_syns)
 
