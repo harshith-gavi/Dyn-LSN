@@ -79,12 +79,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
          N_cl = N_n[0]
          N_nl = N_n[1]
     elif layer == 'h2':
-         # N_n[1] = N_n[1] - no_prun_neu
          N_n[1] = 256 - torch.sum(torch.all(clw == 0, dim=1)).item()
          N_cl = N_n[1]
          N_nl = 20
     
-    prun_rate += (d * N_cl/N_nl)
+    # prun_rate += (d * N_cl/N_nl)
+    prun_rate += (d * torch.count_nonzero(clw).item() / torch.count_nonzero(nlw).item())
     if prun_rate > 0.99:
          prun_rate *= 0.1
 
@@ -128,7 +128,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
                     reg_count += 1
                     clw[i, j] = clw[i, j] - (lr * dL[i, j])
             print('Total number of connections regenerated in {0} Layer: '.format(layer), reg_count)
-            print('Total number of neurons: ', N_n[0])
         
             # # Updating regeneration rate
             # reg_rate += np.power(reg_g, epoch - START)
@@ -171,7 +170,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
                     reg_count += 1
                     clw[i, j] = clw[i, j] - (lr * dL[i, j])
             print('Total number of connections regenerated in {0} Layer: '.format(layer), reg_count)
-            print('Total number of neurons: ', N_n[1])
         
     # Updating regeneration rate
     reg_rate += np.power(reg_g, epoch - START)
