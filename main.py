@@ -21,8 +21,6 @@ def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
         shd_train = data_mod(shd_train['spikes'], shd_train['labels'], batch_size = batch_size, step_size = time_slice, input_size = 700, max_time = 1.4)
         shd_test = data_mod(shd_test['spikes'], shd_test['labels'], batch_size = batch_size, step_size = time_slice, input_size = 700, max_time = 1.4)
         
-        # train_loader = shd_train[:int(0.95 * len(shd_train))]
-        # val_loader = shd_train[int(0.95 * len(shd_train)):]
         train_loader = shd_train
         test_loader = shd_test
         n_classes = 20
@@ -32,7 +30,6 @@ def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
     else:
         print('Dataset not included! Use a different dataset.')
         exit(1)
-    # return train_loader, val_loader, test_loader, seq_length, input_channels, n_classes
     return train_loader, test_loader, seq_length, input_channels, n_classes
 
 def get_stats_named_params( model ):
@@ -112,22 +109,16 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
     model.train()
     
     T = seq_length
-    #entropy = EntropyLoss()
 
     for batch_idx, (data, target) in enumerate(train_loader):
         if args.cuda: data, target = data.cuda(), target.cuda()
         data = data.to_dense()
   
         B = target.size()[0]
-        # step = model.network.step
         xdata = data.clone()
         pdata = data.clone()
         
-        # T = inputs.size()[0]
-        
         _PARTS = PARTS
-        # if (PARTS * step < T):
-        #     _PARTS += 1
         h = model.init_hidden(xdata.size(0))
       
         p_range = range(_PARTS)
@@ -226,7 +217,6 @@ args.cuda = True
 torch.backends.cudnn.benchmark = True
 device_0 = torch.device('cpu')
 device_1 = torch.device('cuda:0')
-device_2 = torch.device('cuda:1')
 
 # Set the random seed manually for reproducibility.
 torch.set_default_tensor_type('torch.cuda.FloatTensor')
@@ -262,7 +252,7 @@ prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
 T = args.t_num
 START = 3                                       # Pruning starts at this epoch
-N_n = [256, 256]                            # Number of neurons in all layers
+N_n = [256, 256]                                # Number of neurons in all layers
 first_update = False
 named_params = get_stats_named_params(model)
 
@@ -273,7 +263,7 @@ if optimizer is None:
     if args.optim == 'Adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=args.wdecay)
     if args.optim == 'AdamW':
-        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.2)
+        optimizer = torch.optim.AdamW(model.parameters(), lr=lr, betas=(0.9, 0.999), eps=1e-08, weight_decay=0.1)
 
 # Initialised Weights
 curr_w2 = model.network.layer1_x.weight.data.T
@@ -324,32 +314,25 @@ for epoch in range(1, epochs + 1):
         all_test_acc.append(test_acc)
         print('Test Loss:', test_loss, end = '\t')
         print('Test Accuracy:', float(test_acc.item()))
-        
-        # if epoch%5 == 0:
-            # val_loss, val_acc = test(model, val_loader)
-            # print('Validation Loss:', val_loss, end = '\t')
-            # print('Validation Accuracy:', val_acc.item())
-            # test_loss, test_acc = test(model, test_loader)
-            # all_test_losses.append(test_loss)
-            # all_test_acc.append(test_acc)
-            # print('Test Loss:', test_loss, end = '\t')
-            # print('Test Accuracy:', test_acc.item())
 
-        # curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
-        # curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
-        # curr_w4 = model.network.layer3_x.weight.data.T
+        # Synaptic COnstraint
+        curr_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2 = synaptic_constraint(curr_w2, prev_w2, R_pos_2, R_neg_2, C_pos_2, C_neg_2, N_pos_2, N_neg_2, N2, T)
+        curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
+        curr_w4 = model.network.layer3_x.weight.data.T
 
-        # if epoch > START:
-        #     curr_w2, prun_rate2, reg_rate2, T_g2, N_n, syns = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, Tg2, model, 'h1', N_n, lr, epoch)
-        #     syns_h1.append(syns)
-        #     model.network.layer1_x.weight.data = curr_w2.T
-        #     curr_w3, prun_rate3, reg_rate3, T_g3, N_n, syns = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, Tg3, model, 'h2', N_n, lr, epoch)
-        #     syns_h2.append(syns)
-        #     model.network.layer2_x.weight.data = curr_w3.T
-        # else:
-        #     syns_h1.append((0, model.network.layer1_x.weight.data.shape[0] * model.network.layer1_x.weight.data.shape[1]))
-        #     syns_h2.append((0, model.network.layer2_x.weight.data.shape[0] * model.network.layer2_x.weight.data.shape[1]))
+        # Plasticity (Pruning & Regeneration)
+        if epoch > START:
+            curr_w2, prun_rate2, reg_rate2, T_g2, N_n, syns = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, Tg2, model, 'h1', N_n, lr, epoch)
+            syns_h1.append(syns)
+            model.network.layer1_x.weight.data = curr_w2.T
+            curr_w3, prun_rate3, reg_rate3, T_g3, N_n, syns = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, Tg3, model, 'h2', N_n, lr, epoch)
+            syns_h2.append(syns)
+            model.network.layer2_x.weight.data = curr_w3.T
+        else:
+            syns_h1.append((0, model.network.layer1_x.weight.data.shape[0] * model.network.layer1_x.weight.data.shape[1]))
+            syns_h2.append((0, model.network.layer2_x.weight.data.shape[0] * model.network.layer2_x.weight.data.shape[1]))
 
+        # Learning Rate Scheduler
         if epoch in args.when :
             lr *= 0.1
             for param_group in optimizer.param_groups:
@@ -357,4 +340,4 @@ for epoch in range(1, epochs + 1):
 
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
-# plot_conns(syns_h1, syns_h2, 'syns', args)
+plot_conns(syns_h1, syns_h2, 'syns', args)
