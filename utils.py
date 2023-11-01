@@ -84,7 +84,7 @@ def plot_info(tr, te, type, args):
         plt.savefig('dyn_plots/parts_' + str(args.parts) + '_nhid' + str(args.nhid) + '_acc_plot.png')
 
     elif type == 'syns':
-        plt.figure(figure=(12, 5))
+        plt.figure(figsize=(12, 5))
         plt.plot(range(1, args.epochs+1), syns_h1[0], label='Pruned', color='red')
         plt.plot(range(1, args.epochs+1), syns_h1[1] - syns_h1[0], label='Regenerated', color='green')
         plt.plot(range(1, args.epochs+1), syns_h1[1], label='Total', color='black')
@@ -94,7 +94,7 @@ def plot_info(tr, te, type, args):
         plt.legend()
         plt.savefig('dyn_plots/h1_prun_rate_' + str(args.prun_rate[0]) + '_reg_rate_' + str(args.reg_rate[0]) + '.png')
 
-        plt.figure(figure=(12, 5))
+        plt.figure(figsize=(12, 5))
         plt.plot(range(1, args.epochs+1), syns_h2[0], label='Pruned', color='red')
         plt.plot(range(1, args.epochs+1), syns_h2[1] - syns_h2[0], label='Regenerated', color='green')
         plt.plot(range(1, args.epochs+1), syns_h2[1], label='Total', color='black')
