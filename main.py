@@ -30,16 +30,18 @@ def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
     else:
         print('Dataset not included! Use a different dataset.')
         exit(1)
+    
     return train_loader, test_loader, seq_length, input_channels, n_classes
 
-def get_stats_named_params( model ):
+def get_stats_named_params(model):
     named_params = {}
     for name, param in model.named_parameters():
         sm, lm, dm = param.detach().clone().to(device_1), 0.0*param.detach().clone().to(device_1), 0.0*param.detach().clone().to(device_1)
         named_params[name] = (param.to(device_1), sm, lm, dm)
+
     return named_params
 
-def post_optimizer_updates( named_params, args, epoch ):
+def post_optimizer_updates(named_params, args, epoch):
     alpha = args.alpha
     beta = args.beta
     rho = args.rho
@@ -49,16 +51,17 @@ def post_optimizer_updates( named_params, args, epoch ):
         sm.data.mul_( (1.0-beta) )
         sm.data.add_( beta * param - (beta/alpha) * lm )
 
-def get_regularizer_named_params( named_params, args):
+def get_regularizer_named_params(named_params, args):
     alpha = args.alpha
     rho = args.rho
     _lambda = args.lmda
     regularization = torch.zeros([]).to(device_1)
     for name in named_params:
         param, sm, lm, dm = named_params[name]
-        regularization += (rho-1.) * torch.sum( param * lm )
-        r_p = _lambda * 0.5 * alpha * torch.sum( torch.square(param - sm) )
+        regularization += (rho-1.) * torch.sum(param * lm)
+        r_p = _lambda * 0.5 * alpha * torch.sum(torch.square(param - sm))
         regularization += r_p
+        
     return regularization 
 
 def reset_named_params(named_params, args):
@@ -74,25 +77,20 @@ def test(model, test_loader):
     for data, target in test_loader:
         if args.cuda:
             data, target = data.cuda(), target.cuda()
+            
         data = data.to_dense()
-
         with torch.no_grad():
             model.eval()
-
-            hidden = model.init_hidden(data.size(0))
-            
+            hidden = model.init_hidden(data.size(0))   
             outputs, hidden, recon_loss = model(data, hidden) 
-
             output = outputs[-1]
             test_loss += F.nll_loss(output, target, reduction='sum').data.item()
             pred = output.data.max(1, keepdim=True)[1]
         
         correct += pred.eq(target.data.view_as(pred)).cpu().sum()
-
     test_loss /= (len(test_loader) * data.shape[0])
     
     return test_loss, 100. * correct / (len(test_loader) * data.shape[0])
-
 
 def train(epoch, args, train_loader, n_classes, model, named_params, k, progress_bar):
     global estimate_class_distribution
@@ -176,7 +174,7 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
                 #     torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
                     
                 optimizer.step()
-                post_optimizer_updates( named_params, args,epoch )
+                post_optimizer_updates(named_params, args, epoch)
 
                 train_loss += loss.item()
                 total_clf_loss += clf_loss.item()
@@ -252,7 +250,7 @@ prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
 T = args.t_num
 START = 20                                       # Pruning starts at this epoch
-N_n = [256, 256]                                # Number of neurons in all layers
+N_n = [256, 256]                                 # Number of neurons in all layers
 first_update = False
 named_params = get_stats_named_params(model)
 
