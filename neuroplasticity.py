@@ -63,7 +63,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
         no_prun_neu = round((torch.count_nonzero(clw).item()/ 700) * prun_rate)
     elif layer == 'h2':
         # no_prun_neu = round(N_n[1] * prun_rate)
-        n_prun_neu = round((torch.count_nonzero(clw).item()/ 256) * prun_rate)
+        no_prun_neu = round((torch.count_nonzero(clw).item()/ 256) * prun_rate)
         
     # indices = torch.argsort(D, dim=0)[:no_prun_neu]
     vals_, indices = torch.topk(D, no_prun_neu, largest=False)
