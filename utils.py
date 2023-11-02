@@ -114,8 +114,8 @@ def plot_info(tr, te, type, args):
         
     elif type == 'plasticity2':
         plt.figure(figsize=(12, 5))
-        plt.plot(range(1, args.epochs+1), pr2, label='Pruning rate', color='red')
-        plt.plot(range(1, args.epochs+1), rr2, label='Regeneration rate', color='green')
+        plt.plot(range(1, args.epochs+1), tr, label='Pruning rate', color='red')
+        plt.plot(range(1, args.epochs+1), te, label='Regeneration rate', color='green')
         plt.xlabel('Epoch')
         plt.ylabel('Plasticity')
         plt.title('Plasticity Over Epochs')
@@ -124,8 +124,8 @@ def plot_info(tr, te, type, args):
 
     elif type == 'plasticity3':
         plt.figure(figsize=(12, 5))
-        plt.plot(range(1, args.epochs+1), pr3, label='Pruning rate', color='red')
-        plt.plot(range(1, args.epochs+1), rr3, label='Regeneration rate', color='green')
+        plt.plot(range(1, args.epochs+1), tr, label='Pruning rate', color='red')
+        plt.plot(range(1, args.epochs+1), te, label='Regeneration rate', color='green')
         plt.xlabel('Epoch')
         plt.ylabel('Plasticity')
         plt.title('Plasticity Over Epochs')
