@@ -248,6 +248,7 @@ syns_h1, syns_h2 = [], []
 epochs = args.epochs
 prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
+pr2, pr3, rr2, rr3 = [], [], [], []
 T = args.t_num
 START = 20                                       # Pruning starts at this epoch
 N_n = [256, 256]                                 # Number of neurons in all layers
@@ -318,6 +319,11 @@ for epoch in range(1, epochs + 1):
         curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
         curr_w4 = model.network.layer3_x.weight.data.T
 
+        pr2.append(prun_rate2)
+        pr3.append(prun_rate3)
+        rr2.append(reg_rate2)
+        rr3.append(reg_rate3)
+        
         # Plasticity (Pruning & Regeneration)
         if epoch > START:
             curr_w2, prun_rate2, reg_rate2, T_g2, N_n, syns = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, Tg2, model, 'h1', N_n, lr, epoch)
@@ -348,3 +354,5 @@ for i in range(len(syns_h1)):
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
 plot_info(syns_h1, syns_h2, 'syns', args)
+plot_info(pr2, rr2, 'plasticity2', args)
+plot_info(pr3, rr3, 'plasticity3', args)
