@@ -59,11 +59,14 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     
     # Pruning neurons based on D
     if layer == 'h1':
-        no_prun_neu = round(N_n[0] * prun_rate)
-    else:
-        no_prun_neu = round(N_n[1] * prun_rate)
-    indices = torch.argsort(D, dim=0)[:no_prun_neu]
-    # print('Number of neurons pruned in {0} Layer:'.format(layer), no_prun_neu)
+        # no_prun_neu = round(N_n[0] * prun_rate)
+        no_prun_neu = round((torch.count_nonzero(clw).item()/ 700) * prun_rate)
+    elif layer == 'h2':
+        # no_prun_neu = round(N_n[1] * prun_rate)
+        n_prun_neu = round((torch.count_nonzero(clw).item()/ 256) * prun_rate)
+        
+    # indices = torch.argsort(D, dim=0)[:no_prun_neu]
+    vals_, indices = torch.topk(D, no_prun_neu, largest=False)
     for i in indices:
         clw[:, i] = 0
 
@@ -76,12 +79,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
 
     if layer == 'h1':
          N_n[0] = 256 - torch.sum(torch.all(clw == 0, dim=1)).item()
-         N_cl = N_n[0]
-         N_nl = N_n[1]
+         # N_cl = N_n[0]
+         # N_nl = N_n[1]
     elif layer == 'h2':
          N_n[1] = 256 - torch.sum(torch.all(clw == 0, dim=1)).item()
-         N_cl = N_n[1]
-         N_nl = 20
+         # N_cl = N_n[1]
+         # N_nl = 20
     
     # prun_rate += (d * N_cl/N_nl)
     prun_rate += (d * torch.count_nonzero(clw).item() / torch.count_nonzero(nlw).item())
