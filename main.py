@@ -329,8 +329,8 @@ for epoch in range(1, epochs + 1):
             syns_h2.append(syns)
             model.network.layer2_x.weight.data = curr_w3.T
         else:
-            syns_h1.append([0, model.network.layer1_x.weight.data.shape[0] * model.network.layer1_x.weight.data.shape[1]])
-            syns_h2.append([0, model.network.layer2_x.weight.data.shape[0] * model.network.layer2_x.weight.data.shape[1]])
+            syns_h1.append([0, 0, model.network.layer1_x.weight.data.shape[0] * model.network.layer1_x.weight.data.shape[1]])
+            syns_h2.append([0, 0, model.network.layer2_x.weight.data.shape[0] * model.network.layer2_x.weight.data.shape[1]])
 
         # Learning Rate Scheduler
         if epoch in args.when :
