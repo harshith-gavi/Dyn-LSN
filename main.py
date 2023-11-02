@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 from utils import *
-from prune import *
+from neuroplasticity import *
 from model_module import *
 
 def data_generator(dataset, batch_size, time_slice, datapath, shuffle=True):
