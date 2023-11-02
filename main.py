@@ -344,6 +344,8 @@ for i in range(len(syns_h1)):
     else:
         syns_h1[i][0] = syns_h1[i][0] - syns_h1[i-1][0]
         syns_h2[i][0] = syns_h2[i][0] - syns_h2[i-1][0]
+        syns_h1[i][1] = syns_h1[i][1] - syns_h1[i-1][1]
+        syns_h2[i][1] = syns_h2[i][1] - syns_h2[i-1][1]
 
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
