@@ -23,10 +23,8 @@ class SeparatedBatchNorm1d(nn.Module):
         self.bias = nn.Parameter(torch.FloatTensor(num_features))
         
         for i in range(max_length):
-            self.register_buffer(
-                'running_mean_{}'.format(i), torch.zeros(num_features))
-            self.register_buffer(
-                'running_var_{}'.format(i), torch.ones(num_features))
+            self.register_buffer('running_mean_{}'.format(i), torch.zeros(num_features))
+            self.register_buffer('running_var_{}'.format(i), torch.ones(num_features))
             
         self.reset_parameters()
 
@@ -36,30 +34,27 @@ class SeparatedBatchNorm1d(nn.Module):
             running_var_i = getattr(self, 'running_var_{}'.format(i))
             running_mean_i.zero_()
             running_var_i.fill_(1)
+            
         if self.affine:
             self.weight.data.uniform_()
             self.bias.data.zero_()
 
     def _check_input_dim(self, input_):
         if input_.size(1) != self.running_mean_0.nelement():
-            raise ValueError('got {}-feature tensor, expected {}'
-                             .format(input_.size(1), self.num_features))
+            raise ValueError('got {}-feature tensor, expected {}'.format(input_.size(1), self.num_features))
 
     def forward(self, input_, time):
         self._check_input_dim(input_)
         if time >= self.max_length:
             time = self.max_length - 1
+        
         running_mean = getattr(self, 'running_mean_{}'.format(time))
         running_var = getattr(self, 'running_var_{}'.format(time))
-        return F.batch_norm(input=input_, running_mean=running_mean, running_var=running_var,
-                            weight=self.weight, bias=self.bias, training=self.training,
-                            momentum=self.momentum, eps=self.eps)
+        
+        return F.batch_norm(input=input_, running_mean=running_mean, running_var=running_var, weight=self.weight, bias=self.bias, training=self.training, momentum=self.momentum, eps=self.eps)
 
     def __repr__(self):
-        return ('{name}({num_features}, eps={eps}, momentum={momentum},'
-                ' max_length={max_length}, affine={affine})'
-                .format(name=self.__class__.__name__, **self.__dict__))
-
+        return ('{name}({num_features}, eps={eps}, momentum={momentum}, max_length={max_length}, affine={affine})'.format(name=self.__class__.__name__, **self.__dict__))
 
 
 b_j0 = 0.1  # neural threshold baseline
@@ -74,22 +69,20 @@ class ActFun_adp(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input):
         ctx.save_for_backward(input)
+        
         return input.gt(0).float()
 
     @staticmethod
     def backward(ctx, grad_output):  # approximate the gradients
         input, = ctx.saved_tensors
         grad_input = grad_output.clone()
-        # temp = abs(input) < lens
         scale = 6.0
         hight = .15
-        # temp = torch.exp(-(input**2)/(2*lens**2))/torch.sqrt(2*torch.tensor(math.pi))/lens
         temp = gaussian(input, mu=0., sigma=lens) * (1. + hight) \
                - gaussian(input, mu=lens, sigma=scale * lens) * hight \
                - gaussian(input, mu=-lens, sigma=scale * lens) * hight
-        # temp =  gaussian(input, mu=0., sigma=lens)
+
         return grad_input * temp.float() * gamma
-        # return grad_input
 
 act_fun_adp = ActFun_adp.apply
 
@@ -136,15 +129,13 @@ class sigmoid_beta(nn.Module):
 class SNN(nn.Module):
     def __init__(self, input_size, hidden_size,output_size, n_timesteps, P):
         super(SNN, self).__init__()
-        
-        self.P = P
-        
+
+        self.rnn_name = 'SNN'
+        self.P = P       
         self.input_size = input_size
         self.hidden_size = hidden_size 
         self.output_size = output_size
         self.n_timesteps = n_timesteps
-        
-        self.rnn_name = 'SNN'
 
         self.layer1_x = nn.Linear(input_size, hidden_size)
         self.layer1_r = nn.Linear(hidden_size, hidden_size)
@@ -260,6 +251,7 @@ class SNN(nn.Module):
                 
         final_state = h
         self.fr = self.fr/T
+        
         return outputs, final_state, hiddens
 
 class SeqModel(nn.Module):
@@ -273,17 +265,14 @@ class SeqModel(nn.Module):
     def forward(self, inputs, hidden):
         outputs, hidden, hiddens= self.network.forward(inputs, hidden)
         recon_loss = torch.zeros(1, device=inputs.device)
+        
         return outputs, hidden, recon_loss
 
     def init_hidden(self, bsz):
         weight = next(self.parameters()).data
-        return (weight.new(bsz,self.nhid).uniform_(),
-                weight.new(bsz,self.nhid).zero_(),
-                weight.new(bsz,self.nhid).fill_(b_j0),
+    
+        return (weight.new(bsz,self.nhid).uniform_(), weight.new(bsz,self.nhid).zero_(), weight.new(bsz,self.nhid).fill_(b_j0),
 
-                weight.new(bsz,self.nhid).uniform_(),
-                weight.new(bsz,self.nhid).zero_(),
-                weight.new(bsz,self.nhid).fill_(b_j0),
+                weight.new(bsz,self.nhid).uniform_(), weight.new(bsz,self.nhid).zero_(), weight.new(bsz,self.nhid).fill_(b_j0),
 
-                weight.new(bsz,self.nout).zero_()
-                )
+                weight.new(bsz,self.nout).zero_())
