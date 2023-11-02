@@ -329,14 +329,21 @@ for epoch in range(1, epochs + 1):
             syns_h2.append(syns)
             model.network.layer2_x.weight.data = curr_w3.T
         else:
-            syns_h1.append((0, model.network.layer1_x.weight.data.shape[0] * model.network.layer1_x.weight.data.shape[1]))
-            syns_h2.append((0, model.network.layer2_x.weight.data.shape[0] * model.network.layer2_x.weight.data.shape[1]))
+            syns_h1.append([0, model.network.layer1_x.weight.data.shape[0] * model.network.layer1_x.weight.data.shape[1]])
+            syns_h2.append([0, model.network.layer2_x.weight.data.shape[0] * model.network.layer2_x.weight.data.shape[1]])
 
         # Learning Rate Scheduler
         if epoch in args.when :
             lr *= 0.1
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
+
+for i in range(len(syns_h1)):
+    if i == 0:
+        pass
+    else:
+        syns_h1[i][0] = syns_h1[i][0] - syns_h1[i-1][0]
+        syns_h2[i][0] = syns_h2[i][0] - syns_h2[i-1][0]
 
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
