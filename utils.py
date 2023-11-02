@@ -111,3 +111,23 @@ def plot_info(tr, te, type, args):
         plt.title('Number of Connections of Hidden Layer 2 Over Epochs')
         plt.legend()
         plt.savefig('dyn_plots/h2_prun_rate_' + str(args.prun_rate[1]) + '_reg_rate_' + str(args.reg_rate[1]) + '.png')
+        
+    elif type == 'plasticity2':
+        plt.figure(figsize=(12, 5))
+        plt.plot(range(1, args.epochs+1), pr2, label='Pruning rate', color='red')
+        plt.plot(range(1, args.epochs+1), rr2, label='Regeneration rate', color='green')
+        plt.xlabel('Epoch')
+        plt.ylabel('Plasticity')
+        plt.title('Plasticity Over Epochs')
+        plt.legend()
+        plt.savefig('dyn_plots/layer2_plasticity_parts_' + str(args.parts) + '_nhid' + str(args.nhid) + '.png')
+
+    elif type == 'plasticity3':
+        plt.figure(figsize=(12, 5))
+        plt.plot(range(1, args.epochs+1), pr3, label='Pruning rate', color='red')
+        plt.plot(range(1, args.epochs+1), rr3, label='Regeneration rate', color='green')
+        plt.xlabel('Epoch')
+        plt.ylabel('Plasticity')
+        plt.title('Plasticity Over Epochs')
+        plt.legend()
+        plt.savefig('dyn_plots/layer3_plasticity_parts_' + str(args.parts) + '_nhid' + str(args.nhid) + '.png')
