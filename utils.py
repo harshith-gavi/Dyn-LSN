@@ -84,20 +84,28 @@ def plot_info(tr, te, type, args):
         plt.savefig('dyn_plots/parts_' + str(args.parts) + '_nhid' + str(args.nhid) + '_acc_plot.png')
 
     elif type == 'syns':
+        prun_ = [i[0] for i in tr]
+        reg_ = [i[1] for i in tr]
+        tot_ = [i[2] for i in tr]
+        
         plt.figure(figsize=(12, 5))
-        plt.plot(range(1, args.epochs+1), tr[0], label='Pruned', color='red')
-        plt.plot(range(1, args.epochs+1), tr[1] - tr[0], label='Regenerated', color='green')
-        plt.plot(range(1, args.epochs+1), tr[1], label='Total', color='black')
+        plt.plot(range(1, args.epochs+1), prun_, label='Pruned', color='red')
+        plt.plot(range(1, args.epochs+1), reg_, label='Regenerated', color='green')
+        plt.plot(range(1, args.epochs+1), tot_, label='Total', color='black')
         plt.xlabel('Epoch')
         plt.ylabel('Connections/Synapses')
         plt.title('Number of Connections of Hidden Layer 1 Over Epochs')
         plt.legend()
         plt.savefig('dyn_plots/h1_prun_rate_' + str(args.prun_rate[0]) + '_reg_rate_' + str(args.reg_rate[0]) + '.png')
 
+        prun_ = [i[0] for i in te]
+        reg_ = [i[1] for i in te]
+        tot_ = [i[2] for i in te]
+
         plt.figure(figsize=(12, 5))
-        plt.plot(range(1, args.epochs+1), te[0], label='Pruned', color='red')
-        plt.plot(range(1, args.epochs+1), te[1] - te[0], label='Regenerated', color='green')
-        plt.plot(range(1, args.epochs+1), te[1], label='Total', color='black')
+        plt.plot(range(1, args.epochs+1), prun_, label='Pruned', color='red')
+        plt.plot(range(1, args.epochs+1), reg_, label='Regenerated', color='green')
+        plt.plot(range(1, args.epochs+1), tot_, label='Total', color='black')
         plt.xlabel('Epoch')
         plt.ylabel('Connections/Synapses')
         plt.title('Number of Connections of Hidden Layer 2 Over Epochs')
