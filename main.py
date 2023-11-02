@@ -170,8 +170,8 @@ def train(epoch, args, train_loader, n_classes, model, named_params, k, progress
    
                 loss.backward()
 
-                # if args.clip > 0:
-                #     torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
+                if args.clip > 0:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
                     
                 optimizer.step()
                 post_optimizer_updates(named_params, args, epoch)
