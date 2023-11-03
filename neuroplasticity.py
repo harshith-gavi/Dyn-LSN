@@ -141,7 +141,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             dL = param.grad
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
-            T_g = torch.zeros(dL.shape)
             
             # Regeneration update
             # for i in range(T_g.shape[0]):
