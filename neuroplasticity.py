@@ -56,6 +56,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
     D = torch.sum(R_range, dim=0)                     # Activity Level
+
+    no_prev_conns = torch.count_nonzero(clw).item()
     
     # Pruning neurons based on D
     if layer == 'h1':
@@ -70,8 +72,9 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     for i in indices:
         clw[:, i] = 0
 
-    no_prun_conn = torch.sum(clw == 0).item()
-    print('Total number of connections pruned in {0} Layer: '.format(layer), no_prun_conn)
+    # no_prun_conn = torch.sum(clw == 0).item()
+    no_prun_conn = no_prev_conns - torch.count_nonzero(clw).item()
+    print('Number of connections pruned in {0} Layer: '.format(layer), no_prun_conn)
 
     # Updating pruning rate
     if epoch <= MID:    d = prun_a * np.exp(-(epoch - START))
@@ -130,7 +133,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
                 if T_g[i, j] > T_num[i, j]:
                     reg_count += 1
                     clw[i, j] = clw[i, j] - (lr * dL[i, j])
-            print('Total number of connections regenerated in {0} Layer: '.format(layer), reg_count)
         
             # # Updating regeneration rate
             # reg_rate += np.power(reg_g, epoch - START)
@@ -172,7 +174,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
                 if T_g[i, j] > T_num[i, j]:
                     reg_count += 1
                     clw[i, j] = clw[i, j] - (lr * dL[i, j])
-            print('Total number of connections regenerated in {0} Layer: '.format(layer), reg_count)
         
     # Updating regeneration rate
     reg_rate += np.power(reg_g, epoch - START)
@@ -180,6 +181,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
         reg_rate = 0.99
 
     no_syns = torch.count_nonzero(clw).item()
+    reg_count = no_syns - no_prun_conn
+    print('Connections regenerated in {0} Layer'.format(layer), reg_count)
     print('Total connections in {0} Layer: '.format(layer), no_syns)
 
     return clw, prun_rate, reg_rate, T_g, N_n, [no_prun_conn, reg_count, no_syns]
