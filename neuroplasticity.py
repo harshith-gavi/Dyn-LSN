@@ -11,33 +11,62 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
     E = 0.75                                        # Boundary Shrinking Factor
     T = np.full(curr_w.shape, T)                    # Plasticity Threshold
 
+    # # Constraining synapses and calculating synaptic activity
+    # for i in range(curr_w.shape[0]):
+    #     for j in range(curr_w.shape[1]):
+    #         if curr_w[i][j] > R_pos[i][j]:
+    #             N_pos[i][j] += 1
+    #             C_pos[i][j] += curr_w[i][j] - R_pos[i][j]
+    #             curr_w[i][j] = R_pos[i][j]
+    #         else:
+    #             N_pos[i][j], C_pos[i][j] = 0, 0
+
+    #         if curr_w[i][j] < R_neg[i][j]:
+    #             N_neg[i][j] += 1
+    #             C_neg[i][j] += R_neg[i][j] - curr_w[i][j]
+    #             curr_w[i][j] = R_neg[i][j]
+    #         else:
+    #             N_neg[i][j], C_neg[i][j] = 0, 0
+
+    #         if curr_w[i][j] < prev_w[i][j]: N[i][j] += 1
+    #         else: N[i][j] = 0
+
+    #         # Updating Synaptic Boundary
+    #         if N_pos[i][j] > T[i, j]:
+    #             R_pos[i][j] += C_pos[i][j] / T[i, j]
+    #         if N_neg[i][j] > T[i, j]:
+    #             R_neg[i][j] -= C_neg[i][j] / T[i, j]
+    #         if N[i][j] > T[i, j]:
+    #             R_pos[i][j], R_neg[i][j] = E * R_pos[i][j], E * R_neg[i][j]
+
     # Constraining synapses and calculating synaptic activity
-    for i in range(curr_w.shape[0]):
-        for j in range(curr_w.shape[1]):
-            if curr_w[i][j] > R_pos[i][j]:
-                N_pos[i][j] += 1
-                C_pos[i][j] += curr_w[i][j] - R_pos[i][j]
-                curr_w[i][j] = R_pos[i][j]
-            else:
-                N_pos[i][j], C_pos[i][j] = 0, 0
+    pos_mask = curr_w > R_pos
+    neg_mask = curr_w < R_neg
+    w_mask = curr_w < prev_w
 
-            if curr_w[i][j] < R_neg[i][j]:
-                N_neg[i][j] += 1
-                C_neg[i][j] += R_neg[i][j] - curr_w[i][j]
-                curr_w[i][j] = R_neg[i][j]
-            else:
-                N_neg[i][j], C_neg[i][j] = 0, 0
+    ## Positive updates
+    N_pos[pos_mask] += 1
+    C_pos[pos_mask] += curr_w[pos_mask] - R_pos[pos_mask]
+    curr_w[pos_mask] = R_pos[pos_mask]
+    N_pos[~pos_mask], C_pos[~pos_mask] = 0, 0
 
-            if curr_w[i][j] < prev_w[i][j]: N[i][j] += 1
-            else: N[i][j] = 0
+    ## Negative updates
+    N_neg[neg_mask] += 1
+    C_neg[neg_mask] += R_neg[neg_mask] - curr_w[neg_mask]
+    curr_w[neg_mask] = R_neg[neg_mask]
+    N_neg[~neg_mask], C_neg[~neg_mask] = 0, 0
 
-            # Updating Synaptic Boundary
-            if N_pos[i][j] > T[i, j]:
-                R_pos[i][j] += C_pos[i][j] / T[i, j]
-            if N_neg[i][j] > T[i, j]:
-                R_neg[i][j] -= C_neg[i][j] / T[i, j]
-            if N[i][j] > T[i, j]:
-                R_pos[i][j], R_neg[i][j] = E * R_pos[i][j], E * R_neg[i][j]
+    N[w_mask] += 1
+    N[~w_mask] = 0
+
+    # Updating Synaptic Boundary
+    temp_pos_mask = N_pos > T
+    temp_neg_mask = N_neg > T
+    temp_mask = N > T
+
+    R_pos[temp_pos_mask] += C_pos[temp_pos_mask] / T[temp_pos_mask]
+    R_neg[temp_neg_mask] -= C_neg[temp_neg_mask] / T[temp_neg_mask]
+    R_pos[temp_mask], R_neg[temp_mask] = E * R_pos[temp_mask], E * R_neg[temp_mask]
 
     return curr_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N
 
