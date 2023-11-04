@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
 
 def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N, T):
     '''
