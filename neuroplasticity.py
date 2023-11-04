@@ -105,54 +105,33 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             T_g[~mask] = 0
 
             conn_mask = T_g > T_num
-            clw[mask] -= lr * dL[mask]    
-            print('Connections regenerated in {0} Layer: '.format(layer), conn_mask)
+            clw[mask] -= lr * dL[mask]
+            reg_count = conn_mask.sum().item()
+            print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
             
         elif (layer == 'h2') and ('2_x.weight' in name) and param.requires_grad:
             dL = param.grad
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
             
-            # Regeneration update
-            # for i in range(T_g.shape[0]):
-            #     for j in range(T_g.shape[1]):
-            #         if j in indices:
-            #             T_g[i, j] += 1
-            #         else: T_g[i, j] = 0
+            vals_, indices = torch.topk(dL.reshape(-1), no_syn_reg, largest=True)
+            r, c = indices // dL.shape[1], indices % dL.shape[1]
 
-            # Regenration update
-            for i in range(T_g.shape[0]):
-                for j in range(T_g.shape[1]):
-                    if clw[i, j] == 0:
-                        T_g[i, j] += 1
-                    else:
-                        T_g[i, j] = 0
-        
-            # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
-            no_syn = torch.count_nonzero(T_g).item()
-            if no_syn > no_syn_reg:
-                topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn_reg)
-            else:
-                topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn)
-        
-            # Regenerating synapases
-            r = topk_indices // T_g.shape[1]
-            c = topk_indices % T_g.shape[1]
-        
-            reg_count = 0
-            for i, j in zip(r, c):
-                if T_g[i, j] > T_num[i, j]:
-                    reg_count += 1
-                    clw[i, j] = clw[i, j] - (lr * dL[i, j])
+            mask = torch.zeros_like(T_g, dtype=torch.bool)
+            mask[r, c] = True
+            T_g[r, c] += 1
+            T_g[~mask] = 0
+
+            conn_mask = T_g > T_num
+            clw[mask] -= lr * dL[mask]
+            reg_count = conn_mask.sum().item()
+            print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
         
     # Updating regeneration rate
     reg_rate += np.power(reg_g, epoch - START)
-    if reg_rate > 0.99:
-        reg_rate = 0.99
+    if reg_rate > 0.99: reg_rate = 0.99
 
     no_syns = torch.count_nonzero(clw).item()
-    reg_count = no_syns - no_prun_conn
-    print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
     print('Total connections in {0} Layer: '.format(layer), no_syns)
 
     return clw, prun_rate, reg_rate, T_g, N_n, [no_prun_conn, reg_count, no_syns]
