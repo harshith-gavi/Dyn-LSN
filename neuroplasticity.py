@@ -55,8 +55,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     '''
     prun_a, prun_b = 1, 0.00075                       # Pruning constants for updates
     reg_g = 1.1                                       # Regeneration constant for updates
-    T_num = np.full(clw.shape, T)                     # Plasticity Threshold
-    START, MID = 20, 50                                # Pruning starts and slows at these epoch
+    T_num = torch.full(clw.shape, T)                  # Plasticity Threshold
+    START, MID = 20, 50                               # Pruning starts and slows at these epoch
 
     #------------------------------------ Pruning ---------------------------------------#
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
@@ -66,10 +66,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     
     # Pruning neurons based on D
     if layer == 'h1':
-        # no_prun_neu = round(N_n[0] * prun_rate)
         no_prun_neu = round((torch.count_nonzero(clw).item()/ 700) * prun_rate)
     elif layer == 'h2':
-        # no_prun_neu = round(N_n[1] * prun_rate)
         no_prun_neu = round((torch.count_nonzero(clw).item()/ 256) * prun_rate)
         
     # indices = torch.argsort(D, dim=0)[:no_prun_neu]
@@ -84,20 +82,11 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     # Updating pruning rate
     if epoch <= MID:    d = prun_a * np.exp(-(epoch - START))
     else:               d = prun_b
-
-    if layer == 'h1':
-         N_n[0] = 256 - torch.sum(torch.all(clw == 0, dim=1)).item()
-         # N_cl = N_n[0]
-         # N_nl = N_n[1]
-    elif layer == 'h2':
-         N_n[1] = 256 - torch.sum(torch.all(clw == 0, dim=1)).item()
-         # N_cl = N_n[1]
-         # N_nl = 20
     
     # prun_rate += (d * N_cl/N_nl)
     prun_rate += (d * torch.count_nonzero(clw).item() / torch.count_nonzero(nlw).item())
     if prun_rate > 0.99:
-         prun_rate *= 0.1
+         prun_rate = 0.99
 
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
@@ -107,40 +96,17 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
 
-            # Regeneration update
-            # for i in range(T_g.shape[0]):
-            #     for j in range(T_g.shape[1]):
-            #         if j in indices:
-            #             T_g[i, j] += 1
-            #         else: T_g[i, j] = 0
+            vals_, indices = torch.topk(dL.view(-1), no_syn_reg, largest=True)
+            r, c = indices // dL.shape[1], indices % dL.shape[1]
 
-            # Regenration update
-            for i in range(T_g.shape[0]):
-                for j in range(T_g.shape[1]):
-                    if clw[i, j] == 0:
-                        T_g[i, j] += 1
-                    else:
-                        T_g[i, j] = 0
-        
-            # Condition that checks if no of connections that can be regenerated is greater than the regeneration rate allowed
-            no_syn = torch.count_nonzero(T_g).item()
-            if no_syn > no_syn_reg:
-                topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn_reg)
-            else:
-                topk_values, topk_indices = torch.topk(T_g.view(-1), k=no_syn)
-        
-            # Regenerating synapases
-            r = topk_indices // T_g.shape[1]
-            c = topk_indices % T_g.shape[1]
+            mask = torch.zeros_like(T_g, dtype=torch.bool)
+            mask[r, c] = True
+            T_g[r, c] += 1
+            T_g[~mask] = 0
 
-            reg_count = 0
-            for i, j in zip(r, c):
-                if T_g[i, j] > T_num[i, j]:
-                    reg_count += 1
-                    clw[i, j] = clw[i, j] - (lr * dL[i, j])
-        
-            # # Updating regeneration rate
-            # reg_rate += np.power(reg_g, epoch - START)
+            conn_mask = T_g > T_num
+            clw[mask] -= lr * dL[mask]    
+            print('Connections regenerated in {0} Layer: '.format(layer), conn_mask)
             
         elif (layer == 'h2') and ('2_x.weight' in name) and param.requires_grad:
             dL = param.grad
