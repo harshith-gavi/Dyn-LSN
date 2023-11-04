@@ -204,7 +204,7 @@ parser.add_argument('--rho', type=float, default=0.0, help='Weight update parame
 parser.add_argument('--lmda', type=float, default=1.0, help='Regularisation strength (Lambda)')
 
 parser.add_argument('--prun_rate', nargs='+', type=float, default=[0.3, 0.3], help = 'Pruning rate per layer')
-parser.add_argument('--reg_rate', nargs='+', type=float, default=[0.15, 0.15], help = 'Regeneration rate per layer')
+parser.add_argument('--reg_rate', nargs='+', type=float, default=[0.1, 0.1], help = 'Regeneration rate per layer')
 parser.add_argument('--t_num', type=int, default=5, help = 'Plasticity Threshold')
 parser.add_argument('--seed', type=int, default=1111, help='Random seed')
 
@@ -341,15 +341,6 @@ for epoch in range(1, epochs + 1):
             lr *= 0.1
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
-
-# for i in range(len(syns_h1)):
-#     if i == 0:
-#         pass
-#     else:
-#         syns_h1[i][0] = syns_h1[i][0] - syns_h1[i-1][0]
-#         syns_h2[i][0] = syns_h2[i][0] - syns_h2[i-1][0]
-#         syns_h1[i][1] = syns_h1[i][1] - syns_h1[i-1][1]
-#         syns_h2[i][1] = syns_h2[i][1] - syns_h2[i-1][1]
 
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
