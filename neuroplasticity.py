@@ -96,7 +96,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
 
-            vals_, indices = torch.topk(dL.view(-1), no_syn_reg, largest=True)
+            vals_, indices = torch.topk(dL.reshape(-1), no_syn_reg, largest=True)
             r, c = indices // dL.shape[1], indices % dL.shape[1]
 
             mask = torch.zeros_like(T_g, dtype=torch.bool)
