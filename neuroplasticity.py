@@ -11,34 +11,6 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
     E = 0.75                                        # Boundary Shrinking Factor
     T = torch.full(curr_w.shape, T)                    # Plasticity Threshold
 
-    # # Constraining synapses and calculating synaptic activity
-    # for i in range(curr_w.shape[0]):
-    #     for j in range(curr_w.shape[1]):
-    #         if curr_w[i][j] > R_pos[i][j]:
-    #             N_pos[i][j] += 1
-    #             C_pos[i][j] += curr_w[i][j] - R_pos[i][j]
-    #             curr_w[i][j] = R_pos[i][j]
-    #         else:
-    #             N_pos[i][j], C_pos[i][j] = 0, 0
-
-    #         if curr_w[i][j] < R_neg[i][j]:
-    #             N_neg[i][j] += 1
-    #             C_neg[i][j] += R_neg[i][j] - curr_w[i][j]
-    #             curr_w[i][j] = R_neg[i][j]
-    #         else:
-    #             N_neg[i][j], C_neg[i][j] = 0, 0
-
-    #         if curr_w[i][j] < prev_w[i][j]: N[i][j] += 1
-    #         else: N[i][j] = 0
-
-    #         # Updating Synaptic Boundary
-    #         if N_pos[i][j] > T[i, j]:
-    #             R_pos[i][j] += C_pos[i][j] / T[i, j]
-    #         if N_neg[i][j] > T[i, j]:
-    #             R_neg[i][j] -= C_neg[i][j] / T[i, j]
-    #         if N[i][j] > T[i, j]:
-    #             R_pos[i][j], R_neg[i][j] = E * R_pos[i][j], E * R_neg[i][j]
-
     # Constraining synapses and calculating synaptic activity
     pos_mask = curr_w > R_pos
     neg_mask = curr_w < R_neg
@@ -65,9 +37,8 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
     temp_mask = N > T
 
     # To avoid warnings
-    if R_pos.is_shared():
+    if R_pos.is_shared() and R_neg.is_shared():
         R_pos = R_pos.clone()
-    if R_neg.is_shared():
         R_neg = R_neg.clone()
         
     R_pos[temp_pos_mask] += C_pos[temp_pos_mask] / T[temp_pos_mask]
