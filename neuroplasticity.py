@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 import torch.nn as nn
 
@@ -80,7 +79,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     print('Number of connections pruned in {0} Layer: '.format(layer), no_prun_conn)
 
     # Updating pruning rate
-    if epoch <= MID:    d = prun_a * np.exp(-(epoch - START))
+    if epoch <= MID:    d = prun_a * torch.exp(-(epoch - START))
     else:               d = prun_b
     
     # prun_rate += (d * N_cl/N_nl)
@@ -128,7 +127,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
         
     # Updating regeneration rate
-    reg_rate += np.power(reg_g, epoch - START)
+    reg_rate += torch.pow(reg_g, epoch - START)
     if reg_rate > 0.99: reg_rate = 0.99
 
     no_syns = torch.count_nonzero(clw).item()
