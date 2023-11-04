@@ -64,8 +64,10 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
     temp_neg_mask = N_neg > T
     temp_mask = N > T
 
-    R_pos[temp_pos_mask] += C_pos[temp_pos_mask] / T[temp_pos_mask]
-    R_neg[temp_neg_mask] -= C_neg[temp_neg_mask] / T[temp_neg_mask]
+    pos_ = C_pos[temp_pos_mask] / T[temp_pos_mask]
+    R_pos[temp_pos_mask] += pos_
+    neg_ = C_neg[temp_neg_mask] / T[temp_neg_mask]
+    R_neg[temp_neg_mask] -= neg
     R_pos[temp_mask], R_neg[temp_mask] = E * R_pos[temp_mask], E * R_neg[temp_mask]
 
     return curr_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N
