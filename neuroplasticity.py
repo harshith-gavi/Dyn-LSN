@@ -9,7 +9,7 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
     OUTPUT: curr_w (Tensor), R_pos (Tensor), R_neg (Tensor)
     '''
     E = 0.75                                        # Boundary Shrinking Factor
-    T = np.full(curr_w.shape, T)                    # Plasticity Threshold
+    T = torch.full(curr_w.shape, T)                    # Plasticity Threshold
 
     # # Constraining synapses and calculating synaptic activity
     # for i in range(curr_w.shape[0]):
