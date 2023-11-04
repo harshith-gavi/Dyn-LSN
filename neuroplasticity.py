@@ -8,7 +8,7 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
     OUTPUT: curr_w (Tensor), R_pos (Tensor), R_neg (Tensor)
     '''
     E = 0.75                                        # Boundary Shrinking Factor
-    T = torch.full(curr_w.shape, T)                    # Plasticity Threshold
+    T = torch.full(curr_w.shape, T)                 # Plasticity Threshold
 
     # Constraining synapses and calculating synaptic activity
     pos_mask = curr_w > R_pos
@@ -61,20 +61,14 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     R_range = R_pos - R_neg                           # Range of the synaptic boundaries
     D = torch.sum(R_range, dim=0)                     # Activity Level
 
-    no_prev_conns = torch.count_nonzero(clw).item()
-    
     # Pruning neurons based on D
-    if layer == 'h1':
-        no_prun_neu = round((torch.count_nonzero(clw).item()/ 700) * prun_rate)
-    elif layer == 'h2':
-        no_prun_neu = round((torch.count_nonzero(clw).item()/ 256) * prun_rate)
-        
-    # indices = torch.argsort(D, dim=0)[:no_prun_neu]
-    vals_, indices = torch.topk(D, no_prun_neu, largest=False)
-    for i in indices:
-        clw[:, i] = 0
+    no_prev_conns = torch.count_nonzero(clw).item()
+    factor_ = 700 if layer == 'h1' else 256 if layer == 'h2' else None
+    no_prun_neu = int((no_prev_conns / factor_) * prun_rate)
 
-    # no_prun_conn = torch.sum(clw == 0).item()
+    vals_, indices = torch.topk(D, no_prun_neu, largest=False)
+    clw[:, indices] = 0
+
     no_prun_conn = no_prev_conns - torch.count_nonzero(clw).item()
     print('Number of connections pruned in {0} Layer: '.format(layer), no_prun_conn)
 
@@ -97,14 +91,12 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
 
             vals_, indices = torch.topk(dL.reshape(-1), no_syn_reg, largest=True)
             r, c = indices // dL.shape[1], indices % dL.shape[1]
-
-            mask = torch.zeros_like(T_g, dtype=torch.bool)
-            mask[r, c] = True
             T_g[r, c] += 1
-            T_g[~mask] = 0
+            mask = clw[r, c] != 0
+            T_g[mask] = 0
 
             conn_mask = T_g > T_num
-            clw[mask] -= lr * dL[mask]
+            clw[conn_mask] -= lr * dL[conn_mask]
             reg_count = conn_mask.sum().item()
             print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
             
