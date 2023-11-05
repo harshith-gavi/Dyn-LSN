@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N, T):
+def synaptic_constraint(curr_w, prev_w, C_pos, C_neg, N_pos, N_neg, N, T):
     '''
     Function that caculates the synaptic boundaries for a layer, given the current and previous epoch weights, and Plasticity Theshold
     INPUT: curr_w (Tensor), prev_w (Tensor), T (Tensor)
@@ -9,6 +9,11 @@ def synaptic_constraint(curr_w, prev_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg
     '''
     E = 0.75                                        # Boundary Shrinking Factor
     T = torch.full(curr_w.shape, T)                 # Plasticity Threshold
+
+    # Initialisation of Synaptic Constraint parameters
+    # Synaptic Boundaries
+    max_val, max_ind = torch.max(abs(curr_w), dim=1)
+    R_pos, R_neg = max_val.unsqueeze(1).expand(curr_w.shape), -max_val.unsqueeze(1).expand(curr_w.shape)
 
     # Constraining synapses and calculating synaptic activity
     pos_mask = curr_w > R_pos
