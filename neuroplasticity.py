@@ -77,7 +77,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     else:               d = prun_b
     
     prun_rate += (d * torch.count_nonzero(clw).item() / torch.count_nonzero(nlw).item())
-    if prun_rate > 0.99:
+    if prun_rate.item() > 0.99:
          prun_rate = 0.99
 
     #---------------------------------- Regeneration ------------------------------------#
