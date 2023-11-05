@@ -78,10 +78,9 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
 
     ncl = torch.count_nonzero(clw).item() / factor_
     nnl =  (torch.count_nonzero(nlw).item() / 256) if layer == 'h1' else 20 if layer == 'h2' else None
-    # if torch.is_tensor(prun_rate): prun_rate = prun_rate.item()
+    print('temp: ', torch.count_nonzero(clw).item() / torch.count_nonzero(nlw).item())
+    print('temp2: ', ncl/nnl)
     prun_rate += (d * ncl / nnl)
-    # prun_rate = prun_rate.item()
-    print(prun_rate)
     if prun_rate > 0.99:
          prun_rate = 0.99
 
@@ -109,17 +108,16 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             dL = param.grad
             dL = dL.T
             no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
-            
+
             vals_, indices = torch.topk(dL.reshape(-1), no_syn_reg, largest=True)
             r, c = indices // dL.shape[1], indices % dL.shape[1]
-
-            mask = torch.zeros_like(T_g, dtype=torch.bool)
-            mask[r, c] = True
             T_g[r, c] += 1
-            T_g[~mask] = 0
+            mask = torch.zeros_like(T_g, dtype=torch.bool)
+            mask[r, c] = clw[r, c] != 0  
+            T_g[mask] = 0
 
             conn_mask = T_g > T_num
-            clw[mask] -= lr * dL[mask]
+            clw[conn_mask] -= lr * dL[conn_mask]
             reg_count = conn_mask.sum().item()
             print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
         
