@@ -68,10 +68,8 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
 
     # Pruning neurons based on D
     no_prev_conns = torch.count_nonzero(clw).item()
-    print(no_prev_conns)
     factor_ = 700 if layer == 'h1' else 256 if layer == 'h2' else None
     no_prun_neu = int((no_prev_conns / factor_) * prun_rate)
-    print(no_prun_neu)
 
     if no_prun_neu == 0:
         print('Number of connections pruned in {0} Layer: '.format(layer), 0)
