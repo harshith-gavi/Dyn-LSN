@@ -269,11 +269,6 @@ curr_w2 = model.network.layer1_x.weight.data.T
 curr_w3 = model.network.layer2_x.weight.data.T
 
 # Initialisation of Synaptic Constraint parameters
-# # Synaptic Boundaries
-# max_val, max_ind = torch.max(abs(curr_w2), dim=1)
-# R_pos_2, R_neg_2 = max_val.unsqueeze(1).expand(curr_w2.shape), -max_val.unsqueeze(1).expand(curr_w2.shape)
-# max_val, max_ind = torch.max(abs(curr_w3), dim=1)
-# R_pos_3, R_neg_3 = max_val.unsqueeze(1).expand(curr_w3.shape), -max_val.unsqueeze(1).expand(curr_w3.shape)
 # Consecutive Time
 N_pos_2, N_neg_2, N2 = torch.zeros(curr_w2.shape), torch.zeros(curr_w2.shape),torch.zeros(curr_w2.shape)
 N_pos_3, N_neg_3, N3 = torch.zeros(curr_w3.shape), torch.zeros(curr_w3.shape), torch.zeros(curr_w3.shape)
