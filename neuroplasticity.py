@@ -75,8 +75,10 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     # Updating pruning rate
     if epoch <= MID:    d = prun_a * torch.exp(-torch.Tensor(epoch - START))
     else:               d = prun_b
-    
-    prun_rate += (d * torch.count_nonzero(clw).item() / torch.count_nonzero(nlw).item())
+
+    ncl = torch.count_nonzero(clw).item() / factor_
+    nnl =  (torch.count_nonzero(nlw).item() / 256) if layer == 'h1' else 20 if layer == 'h2' else None
+    prun_rate += (d * ncl / nnl)
     print(prun_rate)
     if prun_rate > 0.99:
          prun_rate = 0.99
