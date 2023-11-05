@@ -323,7 +323,9 @@ for epoch in range(1, epochs + 1):
         if epoch > START:
             curr_w2, prun_rate2, reg_rate2, T_g2, N_n, syns = plasticity(curr_w2, curr_w3, R_pos_2, R_neg_2, prun_rate2, reg_rate2, T, Tg2, model, 'h1', N_n, lr, epoch)
             syns_h1.append(syns)
+            print('if1', torch.count_nonzero(curr_w2).item())
             model.network.layer1_x.weight.data = curr_w2.T
+            print('if2', torch.count_nonzero(model.network.layer1_x.weight.data).item())
             curr_w3, prun_rate3, reg_rate3, T_g3, N_n, syns = plasticity(curr_w3, curr_w4, R_pos_3, R_neg_3, prun_rate3, reg_rate3, T, Tg3, model, 'h2', N_n, lr, epoch)
             syns_h2.append(syns)
             model.network.layer2_x.weight.data = curr_w3.T
