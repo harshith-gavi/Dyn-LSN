@@ -283,8 +283,8 @@ for epoch in range(1, epochs + 1):
         progress_bar = tqdm(total=len(train_loader), desc=f"Epoch {epoch}")
         
         # Previous Epoch Weights
-        prev_w2 = model.network.layer1_x.weight.data.T
-        prev_w3 = model.network.layer2_x.weight.data.T
+        prev_w2 = model.network.layer1_x.weight.data.T.clone()
+        prev_w3 = model.network.layer2_x.weight.data.T.clone()
         # mask_w2 = prev_w2 == 0
         # mask_w3 = prev_w3 == 0
 
@@ -293,8 +293,8 @@ for epoch in range(1, epochs + 1):
         progress_bar.close()
         
         # Current Epoch Weights
-        curr_w2 = model.network.layer1_x.weight.data.T
-        curr_w3 = model.network.layer2_x.weight.data.T
+        curr_w2 = model.network.layer1_x.weight.data.T.clone()
+        curr_w3 = model.network.layer2_x.weight.data.T.clone()
 
         # Making the pruned connections zero as they are retrained
         # curr_w2[mask_w2] = 0
