@@ -108,6 +108,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             conn_mask = T_g > T_num
             clw[conn_mask] -= lr * dL[conn_mask]
             reg_count = conn_mask.sum().item()
+            T_g[conn_mask] = 0 
             print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
             
         elif (layer == 'h2') and ('2_x.weight' in name) and param.requires_grad:
@@ -125,6 +126,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
             conn_mask = T_g > T_num
             clw[conn_mask] -= lr * dL[conn_mask]
             reg_count = conn_mask.sum().item()
+            T_g[conn_mask] = 0
             print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
         
     # Updating regeneration rate
