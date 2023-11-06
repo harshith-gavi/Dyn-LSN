@@ -250,7 +250,7 @@ prun_rate2, prun_rate3 = args.prun_rate[0], args.prun_rate[1]
 reg_rate2, reg_rate3 = args.reg_rate[0], args.reg_rate[1]
 pr2, pr3, rr2, rr3 = [], [], [], []
 T = args.t_num
-START = 5                                       # Pruning starts at this epoch
+START = 20                                       # Pruning starts at this epoch
 N_n = [256, 256]                                 # Number of neurons in all layers
 first_update = False
 named_params = get_stats_named_params(model)
@@ -299,7 +299,6 @@ for epoch in range(1, epochs + 1):
         # Making the pruned connections zero as they are retrained
         # curr_w2[mask_w2] = 0
         # curr_w3[mask_w3] = 0
-        if torch.equal(prev_w2, curr_w2): print('smthng')
         
         reset_named_params(named_params, args)
 
