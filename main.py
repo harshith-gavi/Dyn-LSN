@@ -285,14 +285,28 @@ for epoch in range(1, epochs + 1):
         # Previous Epoch Weights
         prev_w2 = model.network.layer1_x.weight.data.T
         prev_w3 = model.network.layer2_x.weight.data.T
+        print(torch.count_nonzero(prev_w2).item())
+        print(torch.count_nonzero(prev_w3).item())
 
         # Training
         train(epoch, args, train_loader, n_classes, model, named_params, 1, progress_bar)  
         progress_bar.close()
-
+        
         # Current Epoch Weights
         curr_w2 = model.network.layer1_x.weight.data.T
         curr_w3 = model.network.layer2_x.weight.data.T
+
+        # Making the pruned connections zero as they are retrained
+        null_indices = (prev_w2 == 0).nonzero(as_tuple=False)
+        for index in null_indices:
+            curr_w2[index[0], index[1]] = 0
+
+        null_indices = (prev_w3 == 0).nonzero(as_tuple=False)
+        for index in null_indices:
+            curr_w3[index[0], index[1]] = 0
+
+        print(torch.count_nonzero(curr_w2).item())
+        print(torch.count_nonzero(curr_w3).item())
         
         reset_named_params(named_params, args)
 
