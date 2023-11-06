@@ -297,8 +297,10 @@ for epoch in range(1, epochs + 1):
         curr_w3 = model.network.layer2_x.weight.data.T
 
         # Making the pruned connections zero as they are retrained
-        curr_w2 *= (prev_w2 != 0).float()
-        curr_w3 *= (prev_w3 != 0).float()
+        mask = prev_w2 == 0
+        curr_w2[mask] = 0
+        mask = prev_w3 == 0
+        curr_w3[mask] = 0
 
         print(torch.count_nonzero(curr_w2).item())
         print(torch.count_nonzero(curr_w3).item())
