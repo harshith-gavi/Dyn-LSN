@@ -342,6 +342,7 @@ for epoch in range(1, epochs + 1):
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
 
+print(pr2)
 plot_info(all_train_losses, all_test_losses, 'loss', args)
 plot_info(all_train_acc, all_test_acc, 'acc', args)
 plot_info(syns_h1, syns_h2, 'syns', args)
