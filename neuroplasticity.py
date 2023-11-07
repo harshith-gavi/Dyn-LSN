@@ -51,7 +51,7 @@ def synaptic_constraint(curr_w, prev_w, C_pos, C_neg, N_pos, N_neg, N, T):
 
     return curr_w, R_pos, R_neg, C_pos, C_neg, N_pos, N_neg, N
 
-def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer, N_n, lr, epoch):
+def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer, lr, epoch):
     '''
     Function that prunes and generates the connections between the presynaptic and postsynaptic neurons, given the current and next layer weights, synaptic boundaries, pruning rate, regeneration rate, and plasticity threshold 
     INPUT: clw (Tensor), plw (Tensor), R_pos (Tensor), R_neg (Tensor), prun_rate (float), reg_rate (float), T (int), model (nn.module), layer (string)
@@ -137,4 +137,4 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     no_syns = torch.count_nonzero(clw).item()
     print('Total connections in {0} Layer: '.format(layer), no_syns)
 
-    return clw, prun_rate, reg_rate, T_g, N_n, [no_prun_conn, reg_count, no_syns]
+    return clw, prun_rate, reg_rate, T_g, [no_prun_conn, reg_count, no_syns]
