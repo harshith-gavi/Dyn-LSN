@@ -203,8 +203,8 @@ parser.add_argument('--beta', type=float, default=0.5, help='Weight update param
 parser.add_argument('--rho', type=float, default=0.0, help='Weight update parameter  (Rho)')
 parser.add_argument('--lmda', type=float, default=1.0, help='Regularisation strength (Lambda)')
 
-parser.add_argument('--prun_rate', nargs='+', type=float, default=[0.01, 0.2], help = 'Pruning rate per layer')
-parser.add_argument('--reg_rate', nargs='+', type=float, default=[0.01, 0.1], help = 'Regeneration rate per layer')
+parser.add_argument('--prun_rate', nargs='+', type=float, default=[0.05, 0.05], help = 'Pruning rate per layer')
+parser.add_argument('--reg_rate', nargs='+', type=float, default=[0.01, 0.01], help = 'Regeneration rate per layer')
 parser.add_argument('--t_num', type=int, default=5, help = 'Plasticity Threshold')
 parser.add_argument('--seed', type=int, default=1111, help='Random seed')
 
