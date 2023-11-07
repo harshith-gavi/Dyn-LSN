@@ -93,42 +93,51 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
 
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
-        # if ('x.weight' in name) and param.requires_grad:
-        if (layer == 'h1') and ('1_x.weight' in name) and param.requires_grad:
-            dL = param.grad
-            dL = dL.T
-            no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
+        if param.requires_grad:
+            prun_layer = False
+            layer_name = None
 
-            vals_, indices = torch.topk(dL.reshape(-1), no_syn_reg, largest=True)
-            r, c = indices // dL.shape[1], indices % dL.shape[1]
-            T_g[r, c] += 1
-            mask = torch.zeros_like(T_g, dtype=torch.bool)
-            mask[r, c] = clw[r, c] != 0  
-            T_g[mask] = 0
-
-            conn_mask = T_g > T_num
-            clw[conn_mask] -= lr * dL[conn_mask]
-            reg_count = conn_mask.sum().item()
-            T_g[conn_mask] = 0 
-            print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
+            if (layer == 'h1') and ('1_x.weight' in name):
+                prun_layer = True
+                layer_name = 'h1'
+            elif (layer == 'h2') and ('2_x.weight' in name):
+                prun_layer = True
+                layer_name = 'h2'
             
-        elif (layer == 'h2') and ('2_x.weight' in name) and param.requires_grad:
-            dL = param.grad
-            dL = dL.T
-            no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
+            if prun_layer:
+                dL = param.grad.T
+                no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
+    
+                vals_, indices = torch.topk(dL.reshape(-1), no_syn_reg, largest=True)
+                r, c = indices // dL.shape[1], indices % dL.shape[1]
+                T_g[r, c] += 1
+                mask = torch.zeros_like(T_g, dtype=torch.bool)
+                mask[r, c] = clw[r, c] != 0  
+                T_g[mask] = 0
+    
+                conn_mask = T_g > T_num
+                clw[conn_mask] -= lr * dL[conn_mask]
+                T_g[conn_mask] = 0
+                reg_count = conn_mask.sum().item() 
+                print('Connections regenerated in {0} Layer: '.format(layer_name), reg_count)
+            
+        # elif (layer == 'h2') and ('2_x.weight' in name) and param.requires_grad:
+        #     dL = param.grad
+        #     dL = dL.T
+        #     no_syn_reg = round(dL.shape[0] * dL.shape[1] * reg_rate)
 
-            vals_, indices = torch.topk(dL.reshape(-1), no_syn_reg, largest=True)
-            r, c = indices // dL.shape[1], indices % dL.shape[1]
-            T_g[r, c] += 1
-            mask = torch.zeros_like(T_g, dtype=torch.bool)
-            mask[r, c] = clw[r, c] != 0  
-            T_g[mask] = 0
+        #     vals_, indices = torch.topk(dL.reshape(-1), no_syn_reg, largest=True)
+        #     r, c = indices // dL.shape[1], indices % dL.shape[1]
+        #     T_g[r, c] += 1
+        #     mask = torch.zeros_like(T_g, dtype=torch.bool)
+        #     mask[r, c] = clw[r, c] != 0  
+        #     T_g[mask] = 0
 
-            conn_mask = T_g > T_num
-            clw[conn_mask] -= lr * dL[conn_mask]
-            reg_count = conn_mask.sum().item()
-            T_g[conn_mask] = 0
-            print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
+        #     conn_mask = T_g > T_num
+        #     clw[conn_mask] -= lr * dL[conn_mask]
+        #     T_g[conn_mask] = 0
+        #     reg_count = conn_mask.sum().item()
+        #     print('Connections regenerated in {0} Layer: '.format(layer), reg_count)
         
     # Updating regeneration rate
     reg_rate += pow(reg_g, epoch - START)
