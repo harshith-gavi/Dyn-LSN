@@ -319,6 +319,7 @@ for epoch in range(1, epochs + 1):
         curr_w3, R_pos_3, R_neg_3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3 = synaptic_constraint(curr_w3, prev_w3, C_pos_3, C_neg_3, N_pos_3, N_neg_3, N3, T)
         curr_w4 = model.network.layer3_x.weight.data.T
 
+        print(prun_rate3)
         pr2.append(prun_rate2)
         pr3.append(prun_rate3)
         rr2.append(reg_rate2)
