@@ -130,4 +130,4 @@ def plot_info(tr, te, type, args):
         plt.ylabel('Plasticity')
         plt.title('Plasticity Over Epochs')
         plt.legend()
-        plt.savefig('dyn_plots/layer2_plasticity_pr_rr.png')
+        plt.savefig('dyn_plots/layer3_plasticity_pr_rr.png')
