@@ -75,6 +75,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
         no_prun_conn = 0
         print('Number of connections pruned in {0} Layer: '.format(layer), 0)
     else:
+        print(no_prun_neu)
         vals_, indices = torch.topk(D, no_prun_neu, largest=False)
         clw[:, indices] = 0
     
