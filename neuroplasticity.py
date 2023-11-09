@@ -75,7 +75,6 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
         no_prun_conn = 0
         print('Number of connections pruned in {0} Layer: '.format(layer), 0)
     else:
-        print(no_prun_neu)
         vals_, indices = torch.topk(D, no_prun_neu, largest=False)
         clw[:, indices] = 0
     
@@ -90,7 +89,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     nnl =  (torch.count_nonzero(nlw).item() / 256) if layer == 'h1' else 20 if layer == 'h2' else None
     prun_rate += (d * ncl / nnl)
     if torch.is_tensor(prun_rate): prun_rate = prun_rate.item()
-    if prun_rate > 0.99: prun_rate *= 0.5
+    while prun_rate > 0.99: prun_rate *= 0.5
 
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
