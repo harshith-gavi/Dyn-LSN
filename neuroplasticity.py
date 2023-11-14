@@ -89,7 +89,7 @@ def plasticity(clw, nlw, R_pos, R_neg, prun_rate, reg_rate, T, T_g, model, layer
     nnl =  (torch.count_nonzero(nlw).item() / 256) if layer == 'h1' else 20 if layer == 'h2' else None
     prun_rate += (d * ncl / nnl)
     if torch.is_tensor(prun_rate): prun_rate = prun_rate.item()
-    while prun_rate > 0.05: prun_rate = 0.01
+    while prun_rate > 0.5: prun_rate = 0.5
 
     #---------------------------------- Regeneration ------------------------------------#
     for name, param in model.named_parameters():
